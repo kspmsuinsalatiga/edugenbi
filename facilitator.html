@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10243c">
+<title>GENBI MISSION — Area Fasilitator</title>
+<meta name="description" content="Dashboard fasilitator GENBI MISSION untuk memantau progres dan menilai empat pos edukasi Bank Indonesia.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#10243c;--navy2:#183958;--ink:#1b2c40;--muted:#77879a;--line:#e7edf2;--paper:#f3f6f8;--white:#fff;--blue:#2673c8;--green:#16865d;--orange:#d9912d;--red:#cb514a;--shadow:0 12px 30px #18395810}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit}.hidden{display:none!important}.wrap{max-width:1400px;margin:auto;padding:24px}.top{background:var(--navy);color:white;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px}.mark{width:40px;height:40px;background:#e8f5ec;color:#126d4e;border-radius:13px;display:grid;place-items:center;font-weight:1000;font-size:20px}.brand b{display:block;letter-spacing:.03em}.brand small{display:block;color:#b4c8d8;font-size:10px;letter-spacing:.12em}.nav{display:flex;gap:9px;align-items:center}.nav a,.nav button{border:1px solid #ffffff35;background:#ffffff12;color:#fff;text-decoration:none;padding:9px 12px;border-radius:10px;font-size:11px;font-weight:800}.login-wrap{min-height:calc(100vh - 72px);display:grid;place-items:center;padding:28px}.login{width:min(100%,470px);background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--shadow)}.eyebrow{font-size:10px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#7890a1}.login h1{font-size:29px;line-height:1.1;letter-spacing:-.04em;margin:9px 0}.login p{color:var(--muted);font-size:12px;line-height:1.7}.field{display:grid;gap:6px;margin:15px 0}.field label{font-size:11px;font-weight:850;color:#40566a}.field input,.field textarea,.score-input{width:100%;padding:11px 12px;border:1px solid #d9e2e9;border-radius:11px;background:#fff;color:var(--ink)}.field textarea{min-height:76px;resize:vertical}.btn{border:0;border-radius:11px;background:var(--blue);color:#fff;padding:11px 15px;font-weight:900;font-size:11px}.btn.dark{background:var(--navy)}.btn.ghost{background:#f0f4f7;color:#40566a;border:1px solid #e1e8ed}.btn.small{padding:8px 11px}.btn:disabled{opacity:.5;cursor:not-allowed}.notice{padding:11px 13px;border-radius:11px;background:#f2f7fc;color:#46617b;font-size:11px;margin-top:13px;line-height:1.6}.notice.error{background:#fff0ed;color:#a43e35}.notice.success{background:#ecf8f1;color:#166a49}.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}.head h1{font-size:29px;line-height:1.1;letter-spacing:-.045em;margin:5px 0}.head p{margin:0;color:var(--muted);font-size:12px}.head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:17px}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow)}.stat small{color:var(--muted);font-size:10px}.stat strong{display:block;font-size:25px;letter-spacing:-.04em;margin-top:3px}.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(290px,.65fr);gap:15px;align-items:start}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:var(--shadow)}.panel h2{font-size:15px;margin:0 0 5px}.sub{font-size:11px;color:var(--muted);margin:0 0 13px}.team{border:1px solid #e7edf2;border-radius:15px;margin:9px 0;overflow:hidden}.team summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fbfcfd}.team summary::-webkit-details-marker{display:none}.team-name{font-weight:950;font-size:12px}.team-meta{font-size:10px;color:var(--muted);display:block}.team-right{display:flex;align-items:center;gap:12px}.score-chip{background:#eaf4ff;color:#245b91;border-radius:20px;padding:5px 9px;font-size:10px;font-weight:950}.team-body{padding:12px}.mission{border:1px solid #ebeff3;border-radius:13px;padding:12px;margin:9px 0;display:grid;grid-template-columns:145px minmax(0,1fr);gap:12px}.mission-title b{display:block;font-size:11px}.mission-title small{display:block;font-size:9px;color:var(--muted);margin-top:4px}.mission-fields{display:grid;grid-template-columns:100px 125px minmax(0,1fr) auto;gap:8px;align-items:end}.mission-fields label{display:block;color:var(--muted);font-size:9px;font-weight:850;margin-bottom:4px}.mission-fields input[type=number]{width:100%;padding:8px 9px;border:1px solid #dce5eb;border-radius:9px}.mission-fields input[type=checkbox]{width:17px;height:17px;vertical-align:middle}.mission-fields textarea{min-height:37px;max-height:70px;padding:7px 9px;border:1px solid #dce5eb;border-radius:9px;width:100%;font-size:10px;resize:vertical}.feed{display:grid;gap:8px;max-height:440px;overflow:auto}.event{border:1px solid #edf1f4;border-radius:12px;padding:10px}.event b{font-size:10px;display:block}.event small{font-size:9px;color:var(--muted)}.event p{font-size:10px;margin:5px 0 0;color:#586c7e}.guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.guide{background:#f7fafb;border:1px solid #e8eef2;border-radius:13px;padding:12px}.guide b{font-size:11px}.guide p{margin:5px 0 0;color:#627486;font-size:10px;line-height:1.65}.leader{width:100%;border-collapse:collapse;font-size:10px}.leader th,.leader td{text-align:left;padding:9px 7px;border-bottom:1px solid #edf1f4}.leader th{color:#8392a1;font-size:9px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#10243c;color:#fff;padding:11px 15px;border-radius:12px;font-size:11px;box-shadow:0 8px 30px #0003;z-index:50;max-width:90vw}.small-muted{font-size:9px;color:var(--muted)}@media(max-width:950px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.mission-fields{grid-template-columns:100px 120px minmax(0,1fr) auto}}@media(max-width:600px){.wrap{padding:15px}.top{padding:12px 15px}.nav a{display:none}.login-wrap{padding:16px}.login{padding:22px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:22px}.mission-fields{grid-template-columns:1fr 1fr}.mission-fields>div:nth-child(3){grid-column:1/-1}.mission-fields button{grid-column:1/-1}.guide-grid{grid-template-columns:1fr}.head h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand"><div class="mark">G</div><div><b>GENBI MISSION</b><small>FACILITATOR CONTROL ROOM</small></div></div><nav class="nav"><a href="./">Menu utama</a><a href="./participant.html">Area peserta</a><button id="logout" class="hidden" type="button">Keluar</button></nav></header>
+<section id="loginView" class="login-wrap"><div class="login"><div class="eyebrow">AREA KHUSUS · AUTHORIZED STAFF</div><h1>Ruang kendali fasilitator</h1><p>Masuk menggunakan akun email dan password yang sudah didaftarkan administrator serta dimasukkan ke daftar fasilitator proyek GENBI.</p><form id="loginForm"><div class="field"><label for="email">Email fasilitator</label><input id="email" type="email" autocomplete="username" required placeholder="nama@organisasi.id"></div><div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Password akun Supabase"></div><button class="btn dark" id="loginBtn" type="submit" style="width:100%">Masuk ke dashboard →</button></form><div id="loginNotice" class="notice">Akses hanya diberikan kepada akun yang secara khusus diizinkan. URL ini bukan pengganti login.</div><p class="small-muted">Belum mendapatkan akun? Hubungi administrator proyek. Jangan gunakan kode kelompok peserta untuk halaman ini.</p></div></section>
+<main id="dashboard" class="wrap hidden"><div class="head"><div><div class="eyebrow">MONITORING ACARA · LIVE</div><h1>Dashboard fasilitator</h1><p id="welcome">Pantau progres dan berikan penilaian pada empat pos GENBI MISSION.</p></div><div class="head-actions"><span class="score-chip" id="sync">Memuat data…</span><button class="btn ghost" id="refresh">↻ Perbarui</button></div></div>
+<section class="stats"><article class="stat"><small>Kelompok terdaftar</small><strong id="teamCount">10</strong></article><article class="stat"><small>Tim sudah mulai</small><strong id="activeCount">0</strong></article><article class="stat"><small>Pos digital selesai</small><strong id="doneCount">0</strong></article><article class="stat"><small>Aktivitas tercatat</small><strong id="eventCount">0</strong></article></section>
+<div class="grid"><section class="panel"><h2>Penilaian per kelompok</h2><p class="sub">Buka kartu kelompok untuk menilai ARIS, PEKA, Ekonomi Cerdas, Ke-bank sentralan, dan Final Challenge. Nilai ini menjadi nilai resmi leaderboard jika tersedia.</p><div id="teamList"></div></section><aside><section class="panel"><h2>🏆 Leaderboard resmi</h2><p class="sub">Menggunakan nilai fasilitator saat nilai override tersedia.</p><div id="leaderboard"></div></section><section class="panel" style="margin-top:14px"><h2>⚡ Aktivitas terbaru</h2><p class="sub">Catatan progres yang dikirim peserta ke Supabase.</p><div id="events" class="feed"></div></section></aside></div>
+<section class="panel" style="margin-top:15px"><h2>Panduan singkat fasilitator</h2><p class="sub">Pertahankan empat pos sesuai alur misi awal—materi, tantangan, dan validasi lapangan saling melengkapi.</p><div class="guide-grid">
+<article class="guide"><b>📲 POS 1 · ARIS — QRIS & Antarnegara</b><p>Bandingkan QRIS Indonesia, PromptPay Thailand, dan DuitNow QR Malaysia. Jelaskan MPM statis (nominal dimasukkan pembayar), MPM dinamis (nominal disiapkan merchant), dan CPM (pelanggan menampilkan QR). Minta peserta memeriksa nama merchant, nominal, dan kurs ilustratif. <strong>Semua gambar hanya bahan belajar; jangan scan via aplikasi bank atau membayar.</strong></p></article>
+<article class="guide"><b>🛡️ POS 2 · PEKA — Perlindungan konsumen</b><p>Uji tiga chat simulasi. Peserta memeriksa nomor, tanda verifikasi, domain, urgensi, dan permintaan OTP/PIN/NIK/biaya. Tegaskan satu tanda—termasuk centang atau tidak adanya lencana—tidak cukup untuk menyimpulkan keaslian. Arahkan mereka mengecek kanal BI secara mandiri.</p></article>
+<article class="guide"><b>🎯 POS 3 · EKONOMI CERDAS</b><p>Siapkan target fisik untuk stabilitas harga, sistem pembayaran, Rupiah, dan bank sentral. Beri tiga kesempatan. Peserta memilih target dan tingkat risiko; fasilitator memvalidasi lemparan benar-benar masuk sebelum nilai dicatat. Bahas alasan ekonomi setelah setiap lemparan.</p></article>
+<article class="guide"><b>🏦 POS 4 · KE-BANK SENTRALAN</b><p>Gunakan BI Control Room untuk empat kasus: stabilitas harga/inflasi (bukan menentukan harga satu barang), kelancaran sistem pembayaran, pengelolaan Rupiah, dan kebijakan makroprudensial untuk memitigasi risiko sistemik. Minta tim menyebut alasan, bukan sekadar menebak jawaban.</p></article>
+</div><div class="notice">Final Challenge: 15 pertanyaan merangkum seluruh pos. Tinjau hasil akhir, lakukan refleksi singkat, lalu tutup dengan evaluasi kegiatan. Angka sensor dan kurs di layar peserta adalah ilustrasi permainan, bukan statistik atau kurs aktual.</div></section>
+</main>
+<div id="toast" class="toast hidden"></div>
+<script>
+(function(){
+'use strict';
+const URL='https://gavsepqkjudrtjftuafa.supabase.co';
+const KEY='sb_publishable_gyzrYgc7Fdl1X69w2ssIXA_Jt9ytexr';
+const MISSIONS=[['aris','ARIS','QRIS & Antarnegara'],['peka','PEKA','Perlindungan konsumen'],['ekonomi','EKONOMI CERDAS','Lempar target ekonomi'],['bi','KE-BANK SENTRALAN','BI Control Room'],['final','FINAL CHALLENGE','15 soal Kahoot-style']];
+let db=null,user=null,data={teams:[],progress:[],assessments:[],events:[],leaderboard:[]},channel=null,refreshing=false;
+const $=id=>document.getElementById(id);
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(s){const el=$('toast');el.textContent=s;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),2600);}
+function loginNotice(msg,bad){$('loginNotice').textContent=msg;$('loginNotice').className='notice'+(bad?' error':'');}
+function status(msg,bad){$('sync').textContent=msg;$('sync').style.background=bad?'#fff0ed':'#eaf8ef';$('sync').style.color=bad?'#aa3f34':'#176a4c';}
+function showDashboard(){ $('loginView').classList.add('hidden');$('dashboard').classList.remove('hidden');$('logout').classList.remove('hidden'); }
+function showLogin(){ $('dashboard').classList.add('hidden');$('loginView').classList.remove('hidden');$('logout').classList.add('hidden'); }
+async function authorize(){
+ const {data:allowed,error}=await db.rpc('is_genbi_facilitator');
+ if(error) throw error;
+ if(allowed!==true) throw new Error('Akun berhasil masuk, tetapi belum terdaftar sebagai fasilitator yang diizinkan.');
+}
+async function loadAll(){
+ if(refreshing)return;refreshing=true;status('Sinkronisasi…');
+ try{
+  const results=await Promise.all([
+   db.from('teams').select('id,team_number,team_name,school_name').order('team_number'),
+   db.from('mission_progress').select('team_id,mission_key,score,completed,updated_at,payload').order('updated_at',{ascending:false}),
+   db.from('facilitator_assessments').select('team_id,mission_key,score,completed,notes,updated_at'),
+   db.from('mission_events').select('team_id,mission_key,event_type,points,payload,created_at').order('created_at',{ascending:false}).limit(60),
+   db.from('leaderboard_public').select('team_id,team_number,team_name,school_name,total_score,completed_count,updated_at').order('total_score',{ascending:false}).order('team_number')
+  ]);
+  for(let i=0;i<results.length;i++)if(results[i].error)throw results[i].error;
+  data.teams=results[0].data||[];data.progress=results[1].data||[];data.assessments=results[2].data||[];data.events=results[3].data||[];data.leaderboard=results[4].data||[];
+  draw();status('● Live · tersinkron');
+ }catch(e){status('Gagal sinkron',true);toast(e.message||'Tidak bisa mengambil data.');}
+ finally{refreshing=false;}
+}
+function draw(){
+ const active=new Set(data.progress.map(x=>x.team_id));
+ $('teamCount').textContent=data.teams.length;
+ $('activeCount').textContent=active.size;
+ $('doneCount').textContent=data.progress.filter(x=>x.completed).length;
+ $('eventCount').textContent=data.events.length;
+ $('teamList').innerHTML=data.teams.map(t=>{
+  const rows=MISSIONS.map(([key,name,desc])=>{
+   const assessment=data.assessments.find(x=>x.team_id===t.id&&x.mission_key===key);
+   const participant=data.progress.find(x=>x.team_id===t.id&&x.mission_key===key);
+   const score=assessment?assessment.score:(participant?participant.score:0);
+   const done=assessment?assessment.completed:(participant?participant.completed:false);
+   const note=assessment?assessment.notes:'';
+   return '<div class="mission"><div class="mission-title"><b>'+name+'</b><small>'+desc+'</small><small>Peserta: '+(participant?participant.score+'/100 · '+(participant.completed?'selesai':'berjalan'):'belum ada progres')+'</small></div><div class="mission-fields">'+
+    '<div><label>Nilai fasilitator</label><input type="number" min="0" max="100" step="1" id="score-'+t.id+'-'+key+'" value="'+esc(score)+'"></div>'+
+    '<div><label>Status</label><label style="display:flex;gap:6px;align-items:center;color:#3d5364"><input type="checkbox" id="done-'+t.id+'-'+key+'" '+(done?'checked':'')+'> Selesai</label></div>'+
+    '<div><label>Catatan fasilitator</label><textarea id="note-'+t.id+'-'+key+'" maxlength="500" placeholder="Catatan hasil observasi…">'+esc(note)+'</textarea></div>'+
+    '<button class="btn small save-assessment" data-team="'+t.id+'" data-mission="'+key+'">Simpan nilai</button></div></div>';
+  }).join('');
+  const teamProgress=data.progress.filter(x=>x.team_id===t.id);
+  const totalScore=data.leaderboard.find(x=>x.team_id===t.id)?.total_score||0;
+  return '<details class="team"><summary><span><span class="team-name">TIM '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</span><span class="team-meta">'+esc(t.school_name||'Sekolah belum diisi')+' · '+teamProgress.filter(x=>x.completed).length+'/4 pos peserta selesai</span></span><span class="team-right"><span class="score-chip">'+totalScore+' poin</span><span aria-hidden="true">⌄</span></span></summary><div class="team-body">'+rows+'</div></details>';
+ }).join('');
+ $('leaderboard').innerHTML='<table class="leader"><thead><tr><th>Rank</th><th>Kelompok</th><th>Skor</th></tr></thead><tbody>'+data.leaderboard.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(r.team_name)+'</td><td><b>'+r.total_score+'</b></td></tr>').join('')+'</tbody></table>';
+ $('events').innerHTML=data.events.length?data.events.slice(0,30).map(ev=>{
+  const team=data.teams.find(x=>x.id===ev.team_id);
+  const msg=ev.payload&&ev.payload.message?ev.payload.message:ev.event_type;
+  return '<article class="event"><b>'+esc(team?team.team_name:'Kelompok')+' · '+esc(ev.mission_key.toUpperCase())+'</b><small>'+new Date(ev.created_at).toLocaleString('id-ID')+'</small><p>'+esc(msg)+'</p></article>';
+ }).join(''):'<div class="notice">Belum ada aktivitas peserta yang tercatat.</div>';
+}
+async function saveAssessment(button){
+ const team=button.dataset.team,key=button.dataset.mission;
+ const score=Number($('score-'+team+'-'+key).value);
+ if(!Number.isInteger(score)||score<0||score>100){toast('Nilai harus berupa angka bulat 0–100.');return;}
+ const completed=$('done-'+team+'-'+key).checked;
+ const notes=$('note-'+team+'-'+key).value.trim();
+ button.disabled=true;button.textContent='Menyimpan…';
+ try{
+  const {error}=await db.from('facilitator_assessments').upsert({team_id:team,mission_key:key,score,completed,notes,updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'team_id,mission_key'});
+  if(error)throw error;
+  await loadAll();toast('Penilaian tersimpan untuk leaderboard resmi.');
+ }catch(e){toast(e.message||'Penilaian gagal disimpan.');}
+ finally{button.disabled=false;button.textContent='Simpan nilai';}
+}
+function subscribe(){
+ if(channel)db.removeChannel(channel);
+ channel=db.channel('genbi-facilitator-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'mission_progress'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'mission_events'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'facilitator_assessments'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'leaderboard_public'},()=>loadAll())
+  .subscribe(s=>{if(s==='SUBSCRIBED')status('● Live · realtime');});
+}
+async function enter(session){
+ user=session.user;await authorize();showDashboard();$('welcome').textContent='Selamat bertugas, '+(user.email||'Fasilitator')+'. Skor yang Anda simpan akan menjadi nilai resmi leaderboard.';await loadAll();subscribe();
+}
+async function logout(){
+ if(channel){await db.removeChannel(channel);channel=null;}
+ await db.auth.signOut();user=null;showLogin();loginNotice('Anda sudah keluar dari dashboard.',false);
+}
+async function init(){
+ if(!window.supabase||!window.supabase.createClient){loginNotice('Pustaka koneksi gagal dimuat. Periksa internet dan muat ulang halaman.',true);return;}
+ db=window.supabase.createClient(URL,KEY,{auth:{storageKey:'genbi-facilitator-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+ $('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();const btn=$('loginBtn');btn.disabled=true;btn.textContent='Memeriksa akses…';
+  try{
+   const {data:res,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+   if(error)throw error;
+   await enter(res);
+  }catch(err){
+   try{await db.auth.signOut();}catch(_){}
+   showLogin();loginNotice(err.message||'Tidak bisa masuk. Periksa kredensial dan akses fasilitator.',true);
+  }finally{btn.disabled=false;btn.textContent='Masuk ke dashboard →';}
+ });
+ $('logout').addEventListener('click',logout);
+ $('refresh').addEventListener('click',loadAll);
+ $('teamList').addEventListener('click',e=>{const b=e.target.closest('.save-assessment');if(b)saveAssessment(b);});
+ const {data:{session}}=await db.auth.getSession();
+ if(session){try{await enter(session);}catch(_){await db.auth.signOut();showLogin();}}
+}
+document.addEventListener('DOMContentLoaded',init,{once:true});
+})();
+</script>
+</body>
+</html>
