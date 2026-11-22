@@ -161,19 +161,18 @@ async function reviewRegistration(id,action,button){
  finally{button.disabled=false;button.textContent=action==='approve'?'Setujui':'Tolak';}
 }
 function draw(){
- const active=new Set([...data.progress,...data.assessments].map(x=>x.team_id));
+ const active=new Set(data.assessments.map(x=>x.team_id));
  $('teamCount').textContent=data.teams.length;
  $('activeCount').textContent=active.size;
- $('doneCount').textContent=data.teams.reduce((sum,t)=>sum+MISSIONS.filter(([key])=>{const a=data.assessments.find(x=>x.team_id===t.id&&x.mission_key===key);const p=data.progress.find(x=>x.team_id===t.id&&x.mission_key===key);return a?!!a.completed:!!p?.completed;}).length,0);
+ $('doneCount').textContent=data.assessments.filter(x=>x.completed).length;
  $('eventCount').textContent=data.events.length;
  $('pendingCount').textContent=data.registrations.length;
  drawRegistrationQueue();
  $('teamList').innerHTML=data.teams.map(t=>{
   const rows=MISSIONS.map(([key,name,desc])=>{
    const assessment=data.assessments.find(x=>x.team_id===t.id&&x.mission_key===key);
-   const participant=data.progress.find(x=>x.team_id===t.id&&x.mission_key===key);
-   const score=assessment?assessment.score:(participant?participant.score:0);
-   const done=assessment?assessment.completed:(participant?participant.completed:false);
+   const score=assessment?assessment.score:0;
+   const done=assessment?assessment.completed:false;
    const note=assessment?assessment.notes:'';
    return '<div class="mission"><div class="mission-title"><b>'+name+'</b><small>'+desc+'</small><small>Peserta: '+(participant?participant.score+'/100 · '+(participant.completed?'selesai':'berjalan'):'belum ada progres')+'</small></div><div class="mission-fields">'+
     '<div><label>Nilai fasilitator</label><input type="number" min="0" max="100" step="1" id="score-'+t.id+'-'+key+'" value="'+esc(score)+'"></div>'+
@@ -181,7 +180,7 @@ function draw(){
     '<div><label>Catatan fasilitator</label><textarea id="note-'+t.id+'-'+key+'" maxlength="500" placeholder="Catatan hasil observasi…">'+esc(note)+'</textarea></div>'+
     '<button class="btn small save-assessment" data-team="'+t.id+'" data-mission="'+key+'">Simpan nilai</button></div></div>';
   }).join('');
-  const completedCount=MISSIONS.filter(([key])=>{const a=data.assessments.find(x=>x.team_id===t.id&&x.mission_key===key);const p=data.progress.find(x=>x.team_id===t.id&&x.mission_key===key);return a?!!a.completed:!!p?.completed;}).length;
+  const completedCount=MISSIONS.filter(([key])=>!!data.assessments.find(x=>x.team_id===t.id&&x.mission_key===key)?.completed).length;
   const totalScore=data.leaderboard.find(x=>x.team_id===t.id)?.total_score||0;
   return '<details class="team"><summary><span><span class="team-name">TIM '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</span><span class="team-meta">'+esc(t.school_name||'Sekolah belum diisi')+' · '+completedCount+'/5 misi selesai</span></span><span class="team-right"><span class="score-chip">'+totalScore+' poin</span><span aria-hidden="true">⌄</span></span></summary><div class="team-body">'+rows+'</div></details>';
  }).join('');
