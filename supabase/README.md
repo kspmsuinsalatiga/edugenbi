@@ -42,4 +42,4 @@ No client policy should be added to this private invite table. This command has 
 The Advisor also warns that `public.join_team(p_code text)` is a SECURITY DEFINER function callable by authenticated users. This is intentional in the current design: the function checks the anonymous-auth JWT claim, validates bcrypt hashes in the private invite table, and creates only the current user's team membership. Review its definition before changing auth permissions.
 
 ## Realtime
-Publication includes `mission_progress`, `leaderboard_public`, and `facilitator_assessments`. Facilitator dashboard also subscribes to `mission_events` (Realtime must be enabled for it in your project if live activity push is required; periodic manual refresh remains available).
+The `supabase_realtime` publication includes `mission_progress`, `leaderboard_public`, `facilitator_assessments`, and `mission_events`. The facilitator dashboard subscribes to these tables for live progress, assessment, leaderboard, and activity updates.
