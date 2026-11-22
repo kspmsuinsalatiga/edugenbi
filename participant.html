@@ -154,165 +154,232 @@ render();
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_gyzrYgc7Fdl1X69w2ssIXA_Jt9ytexr';
   const SCORE_KEYS = {aris:'aris',peka:'peka',ekonomi:'ekonomi',bi:'bi',final:'final'};
   const COMPLETION_KEYS = {aris:'aris',peka:'peka',ekonomi:'ekonomi',bi:'bi'};
-  let client = null, userId = null, teamId = null, saveTimer = null, saving = false, hydrating = false;
-  let realtimeChannel = null, leaderboardRows = [], dirty = false;
+  let client=null,userId=null,teamId=null,saveTimer=null,saving=false,hydrating=false;
+  let realtimeChannel=null,registrationChannel=null,leaderboardRows=[],dirty=false,registrationCache=null,teamCache=[];
 
-  function setStatus(label, error=false) {
-    const el = document.getElementById('cloudStatus');
-    if (el) { el.textContent = label; el.classList.toggle('cloud-status-error', !!error); }
+  function setStatus(label,error=false){
+    const el=document.getElementById('cloudStatus');
+    if(el){el.textContent=label;el.classList.toggle('cloud-status-error',!!error);}
   }
-  function gate(message='') {
-    document.getElementById('cloudGate')?.remove();
-    const node = document.createElement('div');
-    node.id = 'cloudGate'; node.className = 'cloud-gate';
-    node.innerHTML = `<div class="cloud-panel"><div class="cloud-logo">✦</div><div class="eyebrow">GENBI MISSION · TEAM ACCESS</div><h2>Masuk ke misi kelompokmu</h2><p>Masukkan kode kelompok dari fasilitator. Progres, jawaban, dan skor akan tersimpan ke database acara agar dapat dilanjutkan dari perangkat kelompok yang sama.</p><form id="cloudJoinForm"><label for="teamInviteCode">KODE KELOMPOK</label><input id="teamInviteCode" name="code" placeholder="CONTOH: ABCD1234" maxlength="20" autocomplete="off" required><button class="btn" type="submit" style="width:100%;margin-top:12px;padding:13px">Gabung kelompok →</button></form><div id="cloudGateError" class="gate-error" style="${message?'display:block':''}">${esc(message)}</div><div class="gate-help"><b>Belum punya kode?</b><br>Minta kartu kode misi kepada fasilitator. Setiap kelompok memiliki kode khusus dengan kuota 10 perangkat/peserta. Gunakan perangkat kelompok yang sama selama acara agar sesi tetap tersimpan.</div><div class="gate-help" style="margin-top:9px"><b>Pengaturan awal:</b> administrator perlu mengaktifkan <i>Anonymous Sign-Ins</i> di Supabase → Authentication → Sign In / Providers agar peserta dapat masuk tanpa email.</div></div>`;
+  function removeGate(){document.getElementById('cloudGate')?.remove();}
+  function cloudShell(title,sub,body){
+    removeGate();
+    const node=document.createElement('div');
+    node.id='cloudGate';node.className='cloud-gate';
+    node.innerHTML='<div class="cloud-panel"><div class="cloud-logo">✦</div><div class="eyebrow">GENBI MISSION · PENDAFTARAN PESERTA</div><h2>'+title+'</h2><p>'+sub+'</p>'+body+'</div>';
     document.body.appendChild(node);
-    document.getElementById('cloudJoinForm')?.addEventListener('submit', async ev => {
-      ev.preventDefault(); const code = document.getElementById('teamInviteCode').value.trim().toUpperCase();
-      const btn = ev.currentTarget.querySelector('button'); btn.disabled = true; btn.textContent = 'Memeriksa kode…';
-      try {
-        const {data,error} = await client.rpc('join_team', {p_code: code});
-        if (error) throw error;
-        const membership = Array.isArray(data) ? data[0] : data;
-        if (!membership?.joined_team_id) throw new Error('Kode tidak dapat dipakai. Periksa kembali dengan fasilitator.');
-        await activateTeam(membership.joined_team_id);
-      } catch (err) {
-        showGateError(err.message || 'Tidak dapat bergabung. Periksa kode dan koneksi internet.');
-      } finally { btn.disabled = false; btn.textContent = 'Gabung kelompok →'; }
-    });
+    return node;
   }
-  function showGateError(message) { const el=document.getElementById('cloudGateError'); if(el){el.textContent=message;el.style.display='block';} }
-  function hideGate(){document.getElementById('cloudGate')?.remove();}
-
-  function payloadFor(key) {
-    if (key==='aris') return {wallet:state.wallet,cart:state.cart,purchases:state.purchases,arisScanned:state.arisScanned,arisPaid:state.arisPaid,cbCountry:state.cbCountry,cbScanned:state.cbScanned,cbDone:state.cbDone};
-    if (key==='peka') return JSON.parse(JSON.stringify(state.peka));
-    if (key==='ekonomi') return JSON.parse(JSON.stringify(state.eco));
-    if (key==='bi') return JSON.parse(JSON.stringify(state.bi));
-    return JSON.parse(JSON.stringify(state.quiz));
+  async function fetchTeams(){
+    const {data,error}=await client.from('teams').select('id,team_number,team_name,school_name').order('team_number');
+    if(error)throw error;
+    teamCache=data||[];
+    return teamCache;
   }
-  function applyPayload(key,payload={}) {
-    if (key==='aris') Object.assign(state,{wallet:payload.wallet??50000,cart:payload.cart||{},purchases:payload.purchases||0,arisScanned:!!payload.arisScanned,arisPaid:!!payload.arisPaid,cbCountry:payload.cbCountry||'th',cbScanned:!!payload.cbScanned,cbDone:!!payload.cbDone});
-    if (key==='peka') state.peka=Object.assign(blankState().peka,payload);
-    if (key==='ekonomi') state.eco=Object.assign(blankState().eco,payload);
-    if (key==='bi') state.bi=Object.assign(blankState().bi,payload);
-    if (key==='final') state.quiz=Object.assign(blankState().quiz,payload);
-  }
-  async function loadProgress() {
-    const {data,error}=await client.from('mission_progress').select('mission_key,score,completed,payload,updated_at').eq('team_id',teamId);
-    if(error) throw error;
-    if(!data?.length){
-      const fresh=blankState(); fresh.team=state.team; fresh.school=state.school;
-      state=fresh;
-      return false;
-    } else {
-      const fresh=blankState(); fresh.team=state.team; fresh.school=state.school; state=fresh;
-      data.forEach(row=>{
-        const key=row.mission_key;
-        const scoreKey=SCORE_KEYS[key];
-        if(scoreKey) state.scores[scoreKey]=Number(row.score||0);
-        if(COMPLETION_KEYS[key]) state.completed[key]=!!row.completed;
-        applyPayload(key,row.payload||{});
-      });
-      localStorage.setItem('genbiMissionV3',JSON.stringify(state));
-      return true;
+  async function showRegistrationForm(message=''){
+    try{
+      const teams=await fetchTeams();
+      const options=teams.map(t=>'<option value="'+esc(t.id)+'">Tim '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</option>').join('');
+      const body='<form id="participantRegisterForm"><label for="participantName">NAMA LENGKAP</label><input id="participantName" name="participant_name" minlength="2" maxlength="80" placeholder="Nama peserta" required autocomplete="name"><label for="participantSchool" style="margin-top:10px">ASAL SEKOLAH</label><input id="participantSchool" name="school_name" minlength="2" maxlength="120" placeholder="Contoh: SMA Negeri ..." required><label for="participantTeam" style="margin-top:10px">KELOMPOK YANG DITUJU</label><select id="participantTeam" name="requested_team_id" required>'+options+'</select><button class="btn" id="participantSubmit" type="submit" style="width:100%;margin-top:13px;padding:13px">Kirim pendaftaran →</button></form><div id="cloudGateError" class="gate-error" style="'+(message?'display:block':'')+'">'+esc(message)+'</div><div class="gate-help"><b>Bagaimana prosesnya?</b><br>Isi nama, sekolah, dan kelompok. Pendaftaran akan masuk ke antrean fasilitator. Kamu baru dapat membuka misi setelah fasilitator menyetujui pendaftaranmu.</div><div class="gate-help" style="margin-top:9px">Pendaftaran ini tidak meminta email atau password. Gunakan browser/perangkat yang sama sampai pendaftaran disetujui.</div>';
+      cloudShell('Daftar sebagai peserta GENBI', 'Lengkapi data berikut untuk meminta akses ke ruang misi peserta.',body);
+      document.getElementById('participantRegisterForm')?.addEventListener('submit',submitRegistration);
+    }catch(err){
+      cloudShell('Pendaftaran belum dapat dimuat','Periksa koneksi lalu coba lagi.','<div id="cloudGateError" class="gate-error" style="display:block">'+esc(err.message||'Daftar kelompok belum bisa diambil.')+'</div><button class="btn" data-cloud-action="retry-register" style="width:100%;margin-top:12px">Coba lagi</button>');
     }
   }
-  async function persistNow() {
-    if(!client||!teamId||!userId||hydrating||saving) return;
-    saving=true; dirty=false;
-    const records=Object.keys(SCORE_KEYS).map(key=>({
-      team_id:teamId, mission_key:key, score:Math.max(0,Math.min(100,Number(state.scores[key]||0))),
-      completed:key==='final'?!!state.quiz.finished:!!state.completed[key], payload:payloadFor(key), updated_by:userId,
-      updated_at:new Date().toISOString()
-    }));
-    try {
-      const {error}=await client.from('mission_progress').upsert(records,{onConflict:'team_id,mission_key'});
-      if(error) throw error;
-      setStatus('☁️ Tersinkron');
-    } catch(err) { setStatus('⚠️ Gagal sinkron',true); console.error('GENBI cloud sync:',err); }
-    finally { saving=false; if(dirty) queueSave(); }
+  async function submitRegistration(ev){
+    ev.preventDefault();
+    const btn=document.getElementById('participantSubmit');
+    const participantName=document.getElementById('participantName').value.trim();
+    const schoolName=document.getElementById('participantSchool').value.trim();
+    const requestedTeamId=document.getElementById('participantTeam').value;
+    if(participantName.length<2||schoolName.length<2){showGateError('Nama dan asal sekolah wajib diisi.');return;}
+    btn.disabled=true;btn.textContent='Mengirim pendaftaran…';
+    const {error}=await client.from('participant_registrations').insert({
+      user_id:userId,participant_name:participantName,school_name:schoolName,
+      requested_team_id:requestedTeamId,status:'pending'
+    });
+    btn.disabled=false;btn.textContent='Kirim pendaftaran →';
+    if(error){showGateError(error.message||'Pendaftaran tidak berhasil dikirim.');return;}
+    await refreshAccess();
+    toast('Pendaftaran dikirim. Tunggu persetujuan fasilitator.');
   }
-  function queueSave(){
-    if(!teamId||hydrating) return;
-    dirty=true; clearTimeout(saveTimer);
-    saveTimer=setTimeout(()=>persistNow(),650);
+  function showGateError(message){
+    const el=document.getElementById('cloudGateError');
+    if(el){el.textContent=message;el.style.display='block';}
   }
-  async function refreshLeaderboard() {
-    if(!client||!userId) return;
-    const {data,error}=await client.from('leaderboard_public').select('team_id,team_number,team_name,school_name,total_score,completed_count').order('total_score',{ascending:false}).order('team_number',{ascending:true});
-    if(error){console.warn('Leaderboard:',error.message);return;}
-    leaderboardRows=data||[];
-    window.GENBI_CLOUD.leaderboard=leaderboardRows;
-    if(route==='leaderboard') render();
+  function showPending(reg){
+    registrationCache=reg;
+    const requested=teamCache.find(t=>t.id===reg.requested_team_id);
+    const body='<div class="gate-help" style="margin:14px 0"><b>Nama peserta</b><br>'+esc(reg.participant_name)+'<br><br><b>Sekolah</b><br>'+esc(reg.school_name)+'<br><br><b>Kelompok yang dipilih</b><br>'+esc(requested?('Tim '+requested.team_number+' · '+requested.team_name):'Menunggu penetapan kelompok')+'</div><div class="notice" style="margin-top:12px"><b>⏳ Menunggu persetujuan fasilitator</b><br>Data pendaftaran sudah tersimpan. Halaman ini akan membuka misi secara otomatis setelah fasilitator menyetujui.</div><button class="btn ghost" data-cloud-action="refresh-access" style="width:100%;margin-top:13px">Perbarui status</button>';
+    cloudShell('Pendaftaran sedang diperiksa','Terima kasih sudah mendaftar. Kamu belum bisa masuk ke materi dan praktik sebelum disetujui.',body);
+    setStatus('⏳ Menunggu persetujuan');
   }
-  async function activateTeam(id) {
-    hydrating=true; teamId=id;
+  function showRejected(reg){
+    registrationCache=reg;
+    const body='<div class="notice error" style="margin-top:13px"><b>Pendaftaran belum disetujui</b><br>'+esc(reg.review_note||'Silakan hubungi fasilitator untuk memperbaiki data atau memilih kelompok lain.')+'</div><button class="btn" data-cloud-action="reapply" style="width:100%;margin-top:13px">Perbaiki dan ajukan kembali</button>';
+    cloudShell('Perlu perbaikan data','Fasilitator belum menyetujui pendaftaran ini. Kamu bisa memperbarui data lalu mengirim ulang.',body);
+    setStatus('↻ Perlu perbaikan');
+  }
+  async function refreshAccess(){
+    const {data:membership,error:memberError}=await client.from('team_members').select('team_id').eq('user_id',userId).maybeSingle();
+    if(memberError)throw memberError;
+    if(membership?.team_id){await activateTeam(membership.team_id);return;}
+    const {data:reg,error}=await client.from('participant_registrations').select('id,user_id,participant_name,school_name,requested_team_id,approved_team_id,status,review_note,created_at').eq('user_id',userId).maybeSingle();
+    if(error)throw error;
+    if(!reg){registrationCache=null;await showRegistrationForm();return;}
+    registrationCache=reg;
+    await fetchTeams();
+    if(reg.status==='pending'){showPending(reg);return;}
+    if(reg.status==='rejected'){showRejected(reg);return;}
+    if(reg.status==='approved'){
+      setStatus('✓ Disetujui · menyiapkan kelompok');
+      // Membership is inserted in the same approval transaction; retry once for a briefly stale read.
+      const {data:again,error:againError}=await client.from('team_members').select('team_id').eq('user_id',userId).maybeSingle();
+      if(againError)throw againError;
+      if(again?.team_id){await activateTeam(again.team_id);return;}
+      throw new Error('Pendaftaran disetujui tetapi keanggotaan tim belum terbaca. Tekan Perbarui status.');
+    }
+  }
+  async function activateTeam(id){
+    hydrating=true;teamId=id;
     const {data:team,error}=await client.from('teams').select('id,team_name,school_name,team_number').eq('id',id).single();
-    if(error) throw error;
-    state.team=team.team_name; state.school=team.school_name||'SMA';
+    if(error)throw error;
+    const {data:registration}=await client.from('participant_registrations').select('participant_name,school_name').eq('user_id',userId).maybeSingle();
+    state.team=team.team_name;state.school=team.school_name||registration?.school_name||'SMA';
     const hadProgress=await loadProgress();
     localStorage.setItem('genbiMissionV3',JSON.stringify(state));
     hydrating=false;
-    if(!hadProgress) await persistNow();
-    hideGate(); setStatus('☁️ Tersinkron');
-    window.GENBI_CLOUD.teamId=teamId; window.GENBI_CLOUD.team=team; window.GENBI_CLOUD.userId=userId;
-    render();
-    await refreshLeaderboard(); subscribeRealtime();
+    if(!hadProgress)await persistNow();
+    removeGate();setStatus('☁️ Tersinkron');
+    window.GENBI_CLOUD.teamId=teamId;window.GENBI_CLOUD.team=team;window.GENBI_CLOUD.userId=userId;
+    render();await refreshLeaderboard();subscribeRealtime();
+  }
+  function payloadFor(key){
+    if(key==='aris')return {wallet:state.wallet,cart:state.cart,purchases:state.purchases,arisScanned:state.arisScanned,arisPaid:state.arisPaid,cbCountry:state.cbCountry,cbScanned:state.cbScanned,cbDone:state.cbDone};
+    if(key==='peka')return JSON.parse(JSON.stringify(state.peka));
+    if(key==='ekonomi')return JSON.parse(JSON.stringify(state.eco));
+    if(key==='bi')return JSON.parse(JSON.stringify(state.bi));
+    return JSON.parse(JSON.stringify(state.quiz));
+  }
+  function applyPayload(key,payload={}){
+    if(key==='aris')Object.assign(state,{wallet:payload.wallet??50000,cart:payload.cart||{},purchases:payload.purchases||0,arisScanned:!!payload.arisScanned,arisPaid:!!payload.arisPaid,cbCountry:payload.cbCountry||'th',cbScanned:!!payload.cbScanned,cbDone:!!payload.cbDone});
+    if(key==='peka')state.peka=Object.assign(blankState().peka,payload);
+    if(key==='ekonomi')state.eco=Object.assign(blankState().eco,payload);
+    if(key==='bi')state.bi=Object.assign(blankState().bi,payload);
+    if(key==='final')state.quiz=Object.assign(blankState().quiz,payload);
+  }
+  async function loadProgress(){
+    const {data,error}=await client.from('mission_progress').select('mission_key,score,completed,payload,updated_at').eq('team_id',teamId);
+    if(error)throw error;
+    const fresh=blankState();fresh.team=state.team;fresh.school=state.school;state=fresh;
+    if(!data?.length)return false;
+    data.forEach(row=>{
+      const key=row.mission_key,scoreKey=SCORE_KEYS[key];
+      if(scoreKey)state.scores[scoreKey]=Number(row.score||0);
+      if(COMPLETION_KEYS[key])state.completed[key]=!!row.completed;
+      applyPayload(key,row.payload||{});
+    });
+    localStorage.setItem('genbiMissionV3',JSON.stringify(state));
+    return true;
+  }
+  async function persistNow(){
+    if(!client||!teamId||!userId||hydrating||saving)return;
+    saving=true;dirty=false;
+    const records=Object.keys(SCORE_KEYS).map(key=>({
+      team_id:teamId,mission_key:key,score:Math.max(0,Math.min(100,Number(state.scores[key]||0))),
+      completed:key==='final'?!!state.quiz.finished:!!state.completed[key],payload:payloadFor(key),updated_by:userId,
+      updated_at:new Date().toISOString()
+    }));
+    try{
+      const {error}=await client.from('mission_progress').upsert(records,{onConflict:'team_id,mission_key'});
+      if(error)throw error;
+      setStatus('☁️ Tersinkron');
+    }catch(err){setStatus('⚠️ Gagal sinkron',true);console.error('GENBI cloud sync:',err);}
+    finally{saving=false;if(dirty)queueSave();}
+  }
+  function queueSave(){
+    if(!teamId||hydrating)return;
+    dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(()=>persistNow(),650);
+  }
+  async function refreshLeaderboard(){
+    if(!client||!userId)return;
+    const {data,error}=await client.from('leaderboard_public').select('team_id,team_number,team_name,school_name,total_score,completed_count').order('total_score',{ascending:false}).order('team_number',{ascending:true});
+    if(error){console.warn('Leaderboard:',error.message);return;}
+    leaderboardRows=data||[];window.GENBI_CLOUD.leaderboard=leaderboardRows;
+    if(route==='leaderboard')render();
   }
   async function subscribeRealtime(){
-    if(realtimeChannel) await client.removeChannel(realtimeChannel);
+    if(realtimeChannel)await client.removeChannel(realtimeChannel);
     realtimeChannel=client.channel('genbi-team-'+teamId)
       .on('postgres_changes',{event:'*',schema:'public',table:'mission_progress',filter:'team_id=eq.'+teamId},async payload=>{
-        if(payload.new?.updated_by===userId) return;
-        try {await loadProgress();render();} catch(e){console.error(e);}
+        if(payload.new?.updated_by===userId)return;
+        try{await loadProgress();render();}catch(e){console.error(e);}
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'leaderboard_public'},()=>refreshLeaderboard())
-      .subscribe(status=>{ if(status==='SUBSCRIBED') setStatus('☁️ Live'); });
+      .subscribe(status=>{if(status==='SUBSCRIBED')setStatus('☁️ Live');});
   }
   async function logActivity(message){
-    if(!client||!teamId||!userId) return;
+    if(!client||!teamId||!userId)return;
     const key={aris:'aris',peka:'peka',ekonomi:'ekonomi',bi:'bi',final:'final'}[route];
-    if(!key) return;
+    if(!key)return;
     const {error}=await client.from('mission_events').insert({team_id:teamId,mission_key:key,event_type:'activity',payload:{message:String(message).slice(0,240)},created_by:userId});
-    if(error) console.warn('Activity log:',error.message);
+    if(error)console.warn('Activity log:',error.message);
   }
   async function updateSchool(name){
-    if(!client||!teamId) return;
+    if(!client||!teamId)return;
     const {error}=await client.from('teams').update({school_name:String(name).slice(0,70)}).eq('id',teamId);
-    if(error) toast('Nama sekolah belum tersimpan ke server.');
-    else { if(window.GENBI_CLOUD.team) window.GENBI_CLOUD.team.school_name=name; refreshLeaderboard(); }
+    if(error)toast('Nama sekolah belum tersimpan ke server.');
+    else{if(window.GENBI_CLOUD.team)window.GENBI_CLOUD.team.school_name=name;refreshLeaderboard();}
   }
+  async function subscribeRegistration(){
+    if(registrationChannel)await client.removeChannel(registrationChannel);
+    registrationChannel=client.channel('genbi-registration-'+userId)
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'participant_registrations',filter:'user_id=eq.'+userId},async()=>{try{await refreshAccess();}catch(err){showGateError(err.message||'Status belum dapat diperbarui.');}})
+      .subscribe();
+  }
+  document.addEventListener('click',async e=>{
+    const btn=e.target.closest('[data-cloud-action]');
+    if(!btn)return;
+    if(btn.dataset.cloudAction==='retry-register'){await showRegistrationForm();return;}
+    if(btn.dataset.cloudAction==='refresh-access'){try{await refreshAccess();}catch(err){showGateError(err.message||'Tidak dapat memperbarui status.');}return;}
+    if(btn.dataset.cloudAction==='reapply'){
+      const {error}=await client.from('participant_registrations').delete().eq('user_id',userId).eq('status','rejected');
+      if(error){showGateError(error.message||'Tidak dapat mengajukan ulang.');return;}
+      await showRegistrationForm();return;
+    }
+  });
   async function init(){
     window.GENBI_CLOUD={queueSave,logActivity,updateSchool,refreshLeaderboard,leaderboard:leaderboardRows,client:null,teamId:null,userId:null};
-    if(!window.supabase?.createClient){setStatus('⚠️ Library gagal dimuat',true);gate('Library koneksi tidak berhasil dimuat. Periksa internet lalu muat ulang halaman.');return;}
-    client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{storageKey:'genbi-participant-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-    window.GENBI_CLOUD.client=client;
-    setStatus('☁️ Menghubungkan…');
-    try {
+    if(!window.supabase?.createClient){setStatus('⚠️ Library gagal dimuat',true);cloudShell('Koneksi tidak tersedia','Periksa internet lalu muat ulang halaman.','<div class="gate-help">Library Supabase belum berhasil dimuat.</div>');return;}
+    client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{storageKey:'genbi-participant-auth-v2',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+    window.GENBI_CLOUD.client=client;setStatus('☁️ Menghubungkan…');
+    try{
       let {data:{session},error:sessionError}=await client.auth.getSession();
-      if(sessionError) throw sessionError;
+      if(sessionError)throw sessionError;
       if(!session){
         const {data,error}=await client.auth.signInAnonymously();
-        if(error) throw error;
+        if(error)throw error;
         session={user:data.user};
       }
-      userId=session.user.id; window.GENBI_CLOUD.userId=userId;
-      const {data:membership,error}=await client.from('team_members').select('team_id').eq('user_id',userId).maybeSingle();
-      if(error) throw error;
-      if(membership?.team_id){await activateTeam(membership.team_id);}
-      else {setStatus('🔐 Masukkan kode kelompok');gate();}
-    } catch(err) {
+      userId=session.user.id;window.GENBI_CLOUD.userId=userId;
+      await fetchTeams();
+      await refreshAccess();
+      await subscribeRegistration();
+      // The approval listener is realtime; this periodic check also recovers from a dropped connection.
+      window.setInterval(()=>{if(!teamId)refreshAccess().catch(err=>console.warn('Registration status:',err.message));},20000);
+    }catch(err){
       console.error('GENBI init:',err);
       const msg=/anonymous|provider.*disabled|signup/i.test(err.message||'')
-        ? 'Anonymous Sign-Ins belum aktif di Supabase. Buka Authentication → Sign In / Providers → aktifkan Anonymous Sign-Ins, lalu muat ulang website.'
-        : (err.message||'Koneksi ke Supabase belum berhasil. Periksa project URL, publishable key, dan Data API settings.');
-      setStatus('⚠️ Perlu konfigurasi',true); gate(msg);
+        ? 'Anonymous Sign-Ins belum aktif di Supabase. Aktifkan di Authentication → Sign In / Providers, lalu muat ulang.'
+        : (err.message||'Koneksi Supabase belum berhasil. Periksa project URL, publishable key, dan Data API.');
+      setStatus('⚠️ Perlu konfigurasi',true);
+      cloudShell('Belum dapat masuk','Ada kendala saat menyiapkan sesi peserta.','<div id="cloudGateError" class="gate-error" style="display:block">'+esc(msg)+'</div>');
     }
   }
   window.GENBI_CLOUD={queueSave,logActivity,updateSchool,refreshLeaderboard,leaderboard:leaderboardRows,client:null,teamId:null,userId:null};
   document.addEventListener('DOMContentLoaded',init,{once:true});
-  if(document.readyState!=='loading') init();
+  if(document.readyState!=='loading')init();
 })();
 </script>
 </body></html>

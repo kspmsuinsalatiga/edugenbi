@@ -2,44 +2,51 @@
 
 Project ref: `gavsepqkjudrtjftuafa`.
 
-## Participant data
-- `public.teams`: 10 event teams.
-- `public.team_members`: Auth user to team membership.
-- `public.mission_progress`: participant progress and digital mission answers.
-- `public.mission_events`: activity log.
-- `public.leaderboard_public`: derived leaderboard.
+## Authentication and roles
 
-Participants authenticate using anonymous Auth and join via `public.join_team(p_code)`. Team-scoped RLS limits participant progress and event reads/writes to their own team. Participant invite codes are bcrypt-hashed in `private.team_invites`.
+### One facilitator account
+Only the exact email `genbiedu@gmail.com` is accepted by the facilitator allowlist. No facilitator sign-up is available. An `auth.users` trigger automatically adds that single Auth user to `private.facilitator_users` when an administrator creates it in Supabase Authentication → Users.
 
-## Facilitator authorization
-Migration `facilitator_access_and_assessment_layer` added:
-- `private.facilitator_users`: allowlist of approved Supabase Auth user IDs. RLS limits a facilitator to checking their own allowlist entry.
-- `public.is_genbi_facilitator()`: authorization RPC, returning true only for allowlisted signed-in users.
-- `public.facilitator_assessments`: facilitator's official score, completion flag and notes per team/mission. RLS requires facilitator allowlist membership and `updated_by = auth.uid()`.
-- Read policies for facilitators on all teams' mission progress and events.
-- A database trigger recalculates leaderboard entries using the facilitator assessment where it exists; participant results remain stored separately.
+Create the one account once in the Supabase dashboard; see `supabase/facilitator-setup.sql` for a verification query. The facilitator website signs in with email/password and calls `public.is_genbi_facilitator()` before loading data. The password is not stored in this repository or in browser source.
 
-### Create a facilitator account
-1. In Supabase Dashboard, open **Authentication → Users → Add user** and create an email/password user for each authorized facilitator.
-2. Open SQL Editor and run the parameterized template from `supabase/facilitator-setup.sql`, replacing `EMAIL_FASILITATOR` with that exact email.
-3. The facilitator opens `/facilitator.html` and signs in using the account credentials. The page checks `is_genbi_facilitator()` before loading cross-team information.
-4. To revoke access, delete that user's row from `private.facilitator_users` (keep or delete the Auth user as your policy requires).
+### Participant registration + approval
+Participants are created with Supabase Anonymous Auth (no email/password form). They submit:
+- Full name
+- School
+- Requested team (one of the 10 seeded teams)
 
-Do not expose a Supabase service-role/secret key in any browser page. The publishable key in these static pages is designed for client-side use under RLS.
+The request is inserted into `public.participant_registrations` with status `pending`. The participant can only read their own request. The one facilitator can see the pending queue and choose **Approve** or **Reject**. On approval, an RLS-protected database function creates the `team_members` membership in the selected team, enforcing a maximum of 10 participants per team. Participants cannot enter mission pages or write progress until the membership exists. Rejected applicants may correct their details and resubmit.
 
-## Dashboard configuration
-For participant accounts, enable **Anonymous Sign-Ins** in Authentication → Sign In / Providers. Confirm `public` is exposed via Project Settings → Data API. Email/password auth must be enabled for facilitators.
+The old invite-code RPC `public.join_team(text)` has had client EXECUTE privileges revoked to prevent bypassing facilitator approval. Existing invite hashes remain in the private schema but are no longer used by the participant UI.
 
-## Security Advisor item that still needs administrator action
-The current Security Advisor reports RLS disabled for `private.team_invites`. The table is in the non-exposed private schema and has no client grants, and the join RPC performs the invite verification. Nevertheless, enable RLS as defense-in-depth from the Supabase SQL Editor:
+## Tables and data
+- `public.teams`: the 10 event teams.
+- `public.team_members`: approved anonymous Auth users mapped to teams.
+- `public.participant_registrations`: pending/approved/rejected registration requests, with private-to-owner or facilitator-only reads.
+- `public.mission_progress`: one record per team and mission (`aris`, `peka`, `ekonomi`, `bi`, `final`).
+- `public.mission_events`: activity records.
+- `public.facilitator_assessments`: official facilitator score, completion flag and notes per team/mission.
+- `public.leaderboard_public`: derived leaderboard maintained by database triggers.
+- `private.facilitator_users`: one-account allowlist, not exposed to anonymous/public users.
+- `private.team_invites`: legacy bcrypt invite hashes; no longer used by the participant route.
+
+## RLS controls
+- Participants may create only their own pending request, read their own request, and delete their own rejected request to reapply.
+- Only the exact allowlisted facilitator may list all registrations, update decisions, insert team membership, view cross-team progress/events, or save facilitator assessments.
+- The approval RPC runs as invoker and relies on the facilitator RLS policies.
+- Participant mission progress/events remain team-scoped.
+- Realtime publishes `participant_registrations`, `mission_progress`, `mission_events`, `facilitator_assessments`, and `leaderboard_public`.
+
+## Dashboard settings
+Enable **Anonymous Sign-Ins** in Authentication → Sign In / Providers. Confirm `public` is exposed via Project Settings → Data API. Email/password sign-in must be enabled for the one facilitator account.
+
+## Security item to review
+The project schema inspection still reports RLS disabled on the legacy `private.team_invites` table. It is in a non-exposed private schema and has no client grants, and the old join RPC is no longer executable by client roles. Nevertheless, enable RLS as defense-in-depth when the project administrator is ready:
 
 ```sql
 ALTER TABLE "private"."team_invites" ENABLE ROW LEVEL SECURITY;
 ```
 
-No client policy should be added to this private invite table. This command has **not** been applied automatically; it is left for the project administrator to review and run.
+No client policy should be added to that private legacy table. This command has not been automatically applied.
 
-The Advisor also warns that `public.join_team(p_code text)` is a SECURITY DEFINER function callable by authenticated users. This is intentional in the current design: the function checks the anonymous-auth JWT claim, validates bcrypt hashes in the private invite table, and creates only the current user's team membership. Review its definition before changing auth permissions.
-
-## Realtime
-The `supabase_realtime` publication includes `mission_progress`, `leaderboard_public`, `facilitator_assessments`, and `mission_events`. The facilitator dashboard subscribes to these tables for live progress, assessment, leaderboard, and activity updates.
+Never expose a Supabase service-role/secret key in any browser page.
