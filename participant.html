@@ -227,16 +227,13 @@ async function refreshScoreboard(){
  try{
   const results=await Promise.all([
    db.from('facilitator_assessments').select('mission_key,score,completed,updated_at').eq('team_id',teamId),
-   db.from('mission_progress').select('mission_key,score,completed,updated_at').eq('team_id',teamId),
    db.from('leaderboard_public').select('team_id,team_number,team_name,school_name,total_score,completed_count,updated_at').order('total_score',{ascending:false}).order('team_number',{ascending:true})
   ]);
   for(const r of results)if(r.error)throw r.error;
-  const assessments=results[0].data||[],progress=results[1].data||[],leaderboard=results[2].data||[];
+  const assessments=results[0].data||[],leaderboard=results[1].data||[];
   const source={};
   MISSIONS.forEach(m=>{
-   const official=assessments.find(x=>x.mission_key===m.key);
-   const old=progress.find(x=>x.mission_key===m.key);
-   source[m.key]=official||old||null;
+   source[m.key]=assessments.find(x=>x.mission_key===m.key)||null;
   });
   const mine=leaderboard.find(x=>x.team_id===teamId);
   const total=Number(mine?.total_score??Object.values(source).reduce((sum,x)=>sum+Number(x?.score||0),0));
