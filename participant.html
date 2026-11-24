@@ -4,302 +4,203 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#10243c">
-<title>GENBI MISSION — Papan Skor Peserta</title>
-<meta name="description" content="Papan skor dan progres kelompok peserta GENBI MISSION. Permainan dan penilaian dikelola fasilitator.">
+<title>GENBI MISSION — Akun Kelompok</title>
+<meta name="description" content="Akun kelompok GENBI MISSION untuk scan kehadiran, menjawab game per pos, dan melihat poin tim.">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-:root{--navy:#10243c;--navy2:#183958;--ink:#1b2c40;--muted:#77879a;--line:#e6edf2;--paper:#f3f7f8;--white:#fff;--green:#16865d;--blue:#2673c8;--gold:#d69b27;--shadow:0 14px 35px rgba(16,36,60,.08)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-.top{background:linear-gradient(110deg,#10243c,#1b4667);color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-.brand{display:flex;align-items:center;gap:11px}
-.mark{width:41px;height:41px;border-radius:13px;background:#dff7eb;color:#13734c;display:grid;place-items:center;font-size:21px;font-weight:1000}
-.brand b{display:block;letter-spacing:.04em;font-size:14px}
-.brand small{display:block;color:#b9ccda;font-size:9px;letter-spacing:.14em}
-.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.pill{border:1px solid #ffffff3b;background:#ffffff12;color:#e8f1f7;border-radius:30px;padding:7px 10px;font-size:10px;font-weight:850}
-.pill.status{color:#d7f6e6}
-.btn{border:0;border-radius:10px;background:var(--green);color:#fff;padding:10px 14px;font-size:11px;font-weight:900}
-.btn.secondary{background:#eef4f6;color:#41566a;border:1px solid #dfe8ed}
-.btn:disabled{opacity:.55;cursor:not-allowed}
-.wrap{width:min(1140px,100%);margin:0 auto;padding:25px 22px 46px}
-.eyebrow{font-size:9px;font-weight:950;letter-spacing:.15em;text-transform:uppercase;color:#7890a1}
-.hero{position:relative;overflow:hidden;background:linear-gradient(110deg,#123b5d,#176b68);color:#fff;border-radius:23px;padding:25px 27px;margin-bottom:17px;box-shadow:0 18px 42px #153e5b20}
-.hero:after{content:"✦";position:absolute;right:6%;top:-18px;font-size:180px;color:#ffffff0d;transform:rotate(14deg)}
-.hero-inner{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:20px}
-.hero h1{font-size:clamp(25px,4vw,38px);letter-spacing:-.055em;line-height:1.05;margin:8px 0}
-.hero p{font-size:12px;color:#d5e8e7;max-width:650px;margin:0}
-.total-card{min-width:165px;text-align:center;padding:15px 18px;border:1px solid #ffffff38;background:#ffffff14;border-radius:17px}
-.total-card small{display:block;color:#d1e8e2;font-size:9px;font-weight:850;letter-spacing:.12em}
-.total-card strong{display:block;font-size:35px;line-height:1.15;letter-spacing:-.05em;margin:4px 0}
-.total-card span{font-size:9px;color:#e4f4ee}
-.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
-.summary{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow)}
-.summary small{display:block;color:var(--muted);font-size:10px}
-.summary strong{display:block;font-size:24px;letter-spacing:-.04em;margin-top:2px}
-.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin:23px 0 12px}
-.section-head h2{font-size:16px;margin:0;letter-spacing:-.025em}
-.section-head p{font-size:10px;color:var(--muted);margin:3px 0 0}
-.score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.score-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.score-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
-.score-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.score-name{display:flex;align-items:center;gap:10px;min-width:0}
-.score-icon{width:39px;height:39px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:19px;flex:0 0 39px}
-.score-name b{display:block;font-size:12px}
-.score-name small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
-.score-value{text-align:right;white-space:nowrap}
-.score-value strong{font-size:24px;line-height:1;letter-spacing:-.04em}
-.score-value small{display:block;color:var(--muted);font-size:8px}
-.progress-track{height:7px;border-radius:10px;background:#edf1f4;overflow:hidden;margin:15px 0 9px}
-.progress-fill{height:100%;border-radius:10px;background:var(--accent);width:0;transition:width .3s}
-.score-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.state-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:30px;font-size:9px;font-weight:900;background:#f1f4f6;color:#6f7f8e}
-.state-tag.done{background:#e8f7ef;color:#14724d}
-.state-tag.scored{background:#fff5e2;color:#916318}
-.score-foot small{font-size:9px;color:#8a98a6}
-.leader-panel{background:#fff;border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:var(--shadow)}
-.my-rank{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#edf7f2;border:1px solid #d7eee2;border-radius:13px;padding:12px 14px;margin-bottom:12px}
-.my-rank small{display:block;color:#56806c;font-size:9px}
-.my-rank strong{display:block;font-size:20px;color:#155d42}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:430px;font-size:10px}
-th,td{text-align:left;padding:10px 9px;border-bottom:1px solid #edf1f4}
-th{font-size:9px;color:#8997a4;letter-spacing:.06em;text-transform:uppercase}
-td strong{font-size:11px}
-tr.mine{background:#f0f8f4}
-.muted{color:var(--muted)}
-.footer-note{font-size:9px;color:#8795a2;line-height:1.6;margin:12px 0 0}
-.gate{position:fixed;inset:0;background:#0d1d30d9;z-index:20;display:grid;place-items:center;padding:18px;overflow:auto}
-.gate-panel{width:min(100%,490px);background:#fff;border:1px solid #e4ebef;border-radius:22px;padding:26px;box-shadow:0 25px 80px #0004}
-.gate-logo{width:43px;height:43px;border-radius:14px;background:#e2f6eb;color:#13734c;display:grid;place-items:center;font-size:22px;font-weight:1000;margin-bottom:15px}
-.gate-panel h2{font-size:25px;line-height:1.12;letter-spacing:-.045em;margin:7px 0}
-.gate-panel>p{font-size:11px;color:var(--muted);line-height:1.7;margin:7px 0 16px}
-.field{display:grid;gap:6px;margin:11px 0}
-.field label{font-size:10px;font-weight:900;color:#465d70}
-.field input,.field select{width:100%;padding:11px 12px;border:1px solid #dce5ea;border-radius:10px;background:#fff;color:var(--ink)}
-.help{margin-top:12px;background:#f3f7f8;border-radius:11px;padding:11px 12px;color:#617687;font-size:10px;line-height:1.65}
-.notice{padding:11px 13px;border-radius:11px;background:#edf6fb;color:#47667a;font-size:10px;line-height:1.6;margin:12px 0}
-.notice.error{background:#fff0ed;color:#a33f35}
-.notice.success{background:#eaf8ef;color:#176a49}
-.gate-error{display:none;color:#ad4036;background:#fff0ed;border-radius:9px;padding:9px 10px;font-size:10px;margin-top:10px}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#10243c;color:#fff;border-radius:10px;padding:10px 14px;font-size:10px;box-shadow:0 8px 25px #0003;z-index:50;max-width:90vw}
-@media(max-width:700px){
- .top{padding:12px 14px;align-items:flex-start}.brand small{font-size:8px}.top-right{justify-content:flex-end}.top-right .pill:first-child{display:none}
- .wrap{padding:17px 14px 35px}.hero{padding:20px;border-radius:17px}.hero-inner{align-items:flex-start;flex-direction:column}.total-card{width:100%;min-width:0;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px}.total-card strong{font-size:25px;margin:0}.total-card span{display:none}
- .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.summary{padding:11px}.summary strong{font-size:20px}.summary small{font-size:8px}
- .score-grid{grid-template-columns:1fr}.score-card{padding:14px}.section-head{align-items:flex-start;flex-direction:column}
- .gate-panel{padding:21px}.my-rank{align-items:flex-start}
-}
+:root{--navy:#10243c;--navy2:#1b4667;--ink:#1b2c40;--muted:#77879a;--line:#e5edf1;--paper:#f3f7f8;--green:#16865d;--blue:#2673c8;--gold:#d69b27;--red:#c84f48;--purple:#7954d8;--shadow:0 14px 35px rgba(16,36,60,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.top{background:linear-gradient(110deg,#10243c,#1b4667);color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:11px}.mark{width:41px;height:41px;border-radius:13px;background:#dff7eb;color:#13734c;display:grid;place-items:center;font-size:21px;font-weight:1000}.brand b{display:block;letter-spacing:.04em;font-size:14px}.brand small{display:block;color:#b9ccda;font-size:9px;letter-spacing:.14em}.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pill{border:1px solid #ffffff3b;background:#ffffff12;color:#e8f1f7;border-radius:30px;padding:7px 10px;font-size:10px;font-weight:850}.btn{border:0;border-radius:10px;background:var(--green);color:#fff;padding:10px 14px;font-size:11px;font-weight:900}.btn.blue{background:var(--blue)}.btn.secondary{background:#eef4f6;color:#41566a;border:1px solid #dfe8ed}.btn:disabled{opacity:.5;cursor:not-allowed}
+.wrap{width:min(1120px,100%);margin:0 auto;padding:24px 22px 48px}.hero{position:relative;overflow:hidden;background:linear-gradient(112deg,#123b5d,#176b68);color:#fff;border-radius:22px;padding:24px 27px;margin-bottom:15px;box-shadow:0 18px 42px #153e5b20}.hero:after{content:"✦";position:absolute;right:5%;top:-25px;font-size:170px;color:#ffffff0d}.hero-inner{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:20px}.eyebrow{font-size:9px;font-weight:950;letter-spacing:.15em;text-transform:uppercase;color:#7890a1}.hero .eyebrow{color:#9de2c1}.hero h1{font-size:clamp(26px,4vw,38px);letter-spacing:-.055em;line-height:1.05;margin:8px 0}.hero p{font-size:12px;color:#d5e8e7;max-width:660px;margin:0}.total{min-width:155px;text-align:center;padding:13px 17px;border:1px solid #ffffff38;background:#ffffff14;border-radius:16px}.total small{display:block;color:#d1e8e2;font-size:9px;font-weight:850;letter-spacing:.12em}.total strong{display:block;font-size:34px;line-height:1.15;letter-spacing:-.05em}.total span{font-size:9px;color:#e4f4ee}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:17px}.summary,.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow)}.summary small{display:block;color:var(--muted);font-size:10px}.summary strong{display:block;font-size:22px;letter-spacing:-.04em;margin-top:2px}.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:21px 0 11px}.section-head h2{font-size:16px;margin:0}.section-head p{font-size:10px;color:var(--muted);margin:3px 0 0}.score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.score-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;position:relative;overflow:hidden}.score-card:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--accent)}.score-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.score-name{display:flex;align-items:center;gap:9px}.score-icon{width:38px;height:38px;border-radius:11px;background:var(--soft);display:grid;place-items:center;font-size:18px}.score-name b{display:block;font-size:11px}.score-name small{display:block;color:var(--muted);font-size:9px}.score-value{text-align:right}.score-value strong{font-size:23px}.score-value small{display:block;color:var(--muted);font-size:8px}.track{height:6px;background:#edf1f4;border-radius:10px;margin:12px 0 8px;overflow:hidden}.fill{height:100%;border-radius:10px}.status-tag{display:inline-block;border-radius:20px;background:#f0f3f5;color:#6f7f8e;padding:4px 8px;font-size:8px;font-weight:900}.status-tag.done{background:#e8f7ef;color:#14724d}.leader{width:100%;border-collapse:collapse;font-size:10px;min-width:440px}.leader th,.leader td{text-align:left;padding:9px;border-bottom:1px solid #edf1f4}.leader th{font-size:9px;color:#8997a4}.leader tr.mine{background:#f0f8f4}.table-wrap{overflow-x:auto}
+.gate{position:fixed;inset:0;background:#0d1d30dc;z-index:50;display:grid;place-items:center;padding:17px;overflow:auto}.gate-card{width:min(100%,465px);background:#fff;border-radius:21px;padding:25px;box-shadow:0 25px 80px #0004}.gate-logo{width:43px;height:43px;border-radius:14px;background:#e2f6eb;color:#13734c;display:grid;place-items:center;font-size:22px;font-weight:1000;margin-bottom:14px}.gate-card h2{font-size:25px;line-height:1.1;letter-spacing:-.045em;margin:7px 0}.gate-card>p{font-size:11px;color:var(--muted);line-height:1.65}.field{display:grid;gap:6px;margin:13px 0}.field label{font-size:10px;font-weight:900;color:#465d70}.field input{width:100%;padding:12px;border:1px solid #dce5ea;border-radius:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}.note{background:#f1f6f7;color:#607687;border-radius:10px;padding:10px 12px;font-size:9px;line-height:1.6;margin:12px 0}.error{display:none;background:#fff0ed;color:#a33f35;border-radius:9px;padding:9px 10px;font-size:10px;margin-top:9px}
+.modal{position:fixed;inset:0;background:#0b192bcc;z-index:40;display:grid;place-items:center;padding:15px;overflow:auto}.modal-card{width:min(100%,540px);max-height:94vh;overflow:auto;background:#fff;border-radius:18px;padding:17px;box-shadow:0 25px 90px #0005}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.modal-head h2{font-size:18px;margin:4px 0}.reader{width:100%;min-height:220px;margin:14px auto;border-radius:12px;overflow:hidden;background:#f2f5f7}.game-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:var(--shadow)}.game-kicker{font-size:9px;color:var(--blue);font-weight:950;letter-spacing:.13em}.game-question{font-size:19px;line-height:1.3;letter-spacing:-.03em;margin:9px 0 15px}.option-list{display:grid;gap:8px}.option{display:flex;align-items:flex-start;gap:9px;text-align:left;padding:12px;border:1px solid #dfe7ec;border-radius:12px;background:#fff;color:#30495c;font-size:11px;font-weight:800}.option:hover{border-color:#83a9d1;background:#f5f9fd}.option:disabled{cursor:default;opacity:.75}.option .letter{width:23px;height:23px;border-radius:7px;background:#eef4f8;display:grid;place-items:center;font-size:10px;flex:0 0 23px}.result{padding:12px 13px;border-radius:12px;background:#eaf8ef;color:#176a49;font-size:11px;line-height:1.6;margin-top:13px}.result.bad{background:#fff0ed;color:#a43e35}.small{font-size:9px;color:var(--muted);line-height:1.6}.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#10243c;color:#fff;border-radius:11px;padding:10px 14px;font-size:10px;z-index:80;max-width:90vw;box-shadow:0 8px 24px #0003}
+@media(max-width:700px){.top{padding:11px 13px;align-items:flex-start}.top-actions{justify-content:flex-end}.top-actions .pill:first-child{display:none}.wrap{padding:16px 13px 35px}.hero{padding:19px;border-radius:17px}.hero-inner{display:block}.total{margin-top:14px;display:flex;justify-content:space-between;align-items:center;text-align:left}.total strong{font-size:25px}.total span{display:none}.summary-grid{gap:7px}.summary{padding:10px}.summary small{font-size:8px}.summary strong{font-size:19px}.score-grid{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}.game-question{font-size:17px}}
 </style>
 </head>
 <body>
 <header class="top">
- <div class="brand"><div class="mark">G</div><div><b>GENBI MISSION</b><small>PARTICIPANT SCOREBOARD</small></div></div>
- <div class="top-right"><span class="pill" id="teamLabel">Tim belum terhubung</span><span class="pill status" id="cloudStatus">● Menghubungkan</span><button class="btn secondary" id="refreshBtn" type="button">↻ Perbarui</button></div>
+ <div class="brand"><div class="mark">G</div><div><b>GENBI MISSION</b><small>TEAM PLAYER PORTAL</small></div></div>
+ <div class="top-actions"><span class="pill" id="teamLabel">Belum login</span><span class="pill" id="sync">Menghubungkan…</span><button class="btn secondary" id="scanBtn" type="button" disabled>▦ Scan QR</button></div>
 </header>
-<main class="wrap" id="dashboard">
- <section class="hero">
-  <div class="hero-inner">
-   <div><div class="eyebrow" style="color:#9de2c1">PAPAN SKOR KELOMPOK</div><h1>Halo, <span id="participantName">Tim GENBI</span> 👋</h1><p id="teamSchool">Permainan dijalankan bersama fasilitator di setiap pos. Halaman ini menampilkan poin resmi dan progres kelompokmu.</p></div>
-   <div class="total-card"><div><small>TOTAL POIN RESMI</small><strong id="totalScore">0</strong><span>maksimal 500 poin</span></div></div>
-  </div>
+<main class="wrap hidden" id="appView">
+ <section id="scoreView">
+  <section class="hero"><div class="hero-inner"><div><div class="eyebrow">TEAM SCOREBOARD · 2026</div><h1 id="hello">Halo, Tim GENBI!</h1><p id="teamInfo">Satu akun untuk satu kelompok. Diskusikan jawaban bersama, scan QR di setiap aktivitas, dan kumpulkan poin tim.</p></div><div class="total"><div><small>TOTAL POIN KELOMPOK</small><strong id="totalScore">0</strong><span>maksimal 500 poin</span></div></div></div></section>
+  <div class="actions"><button class="btn" id="scanMain" type="button">▦ Scan kehadiran / game</button><button class="btn secondary" id="refreshScore" type="button">↻ Perbarui skor</button></div>
+  <section class="summary-grid"><article class="summary"><small>Pos selesai</small><strong id="donePosts">0/4</strong></article><article class="summary"><small>Kehadiran kelompok</small><strong id="attendance">Belum</strong></article><article class="summary"><small>Peringkat</small><strong id="rank">—</strong></article></section>
+  <div class="section-head"><div><h2>Rapor poin per pos</h2><p>Poin bertambah setelah tim mengirim jawaban yang benar.</p></div><span class="pill" style="background:#eaf8ef;color:#176a49;border-color:#d7eee2">LIVE</span></div>
+  <section class="score-grid" id="scoreGrid"></section>
+  <div class="section-head"><div><h2>🏆 Leaderboard 8 kelompok</h2><p>Peringkat diperbarui otomatis setiap jawaban dinilai.</p></div></div>
+  <section class="panel"><div class="table-wrap"><table class="leader"><thead><tr><th>Rank</th><th>Kelompok</th><th>Poin</th><th>Pos selesai</th></tr></thead><tbody id="leaderRows"><tr><td colspan="4">Menyiapkan leaderboard…</td></tr></tbody></table></div></section>
+  <p class="small" style="margin-top:12px">Gunakan satu perangkat utama untuk akun kelompok. Anggota berdiskusi bersama sebelum satu jawaban dikirim. QR kehadiran menandai kehadiran kelompok, bukan mencatat nama 10 anggota satu per satu.</p>
  </section>
- <section class="summary-grid">
-  <article class="summary"><small>Pos selesai</small><strong id="stationCount">0/4</strong></article>
-  <article class="summary"><small>Final Challenge</small><strong id="finalStatus">Belum</strong></article>
-  <article class="summary"><small>Peringkat saat ini</small><strong id="rankValue">—</strong></article>
- </section>
- <div class="section-head"><div><h2>Rapor poin setiap pos</h2><p>Nilai berubah otomatis setelah fasilitator menyimpan penilaian.</p></div><span class="pill" style="background:#eaf8ef;color:#176a49;border-color:#d7eee2">LIVE SCORE</span></div>
- <section class="score-grid" id="scoreGrid"></section>
- <div class="section-head"><div><h2>🏆 Peringkat 10 kelompok</h2><p>Leaderboard resmi berdasarkan nilai yang dicatat fasilitator.</p></div></div>
- <section class="leader-panel"><div class="my-rank"><div><small>POSISI KELOMPOKMU</small><strong id="rankText">Belum masuk peringkat</strong></div><div style="text-align:right"><small>POIN KELOMPOK</small><strong id="rankPoints">0</strong></div></div><div class="table-wrap"><table><thead><tr><th>Rank</th><th>Kelompok</th><th>Sekolah</th><th>Poin</th><th>Misi</th></tr></thead><tbody id="leaderRows"><tr><td colspan="5" class="muted">Menyiapkan leaderboard…</td></tr></tbody></table></div><p class="footer-note">Papan skor hanya menampilkan hasil. Permainan QRIS, investigasi chat PEKA, lempar target, BI Control Room, dan Final Challenge dipandu serta dinilai oleh fasilitator.</p></section>
+ <section id="gameView" class="hidden"><div class="section-head"><div><div class="eyebrow">LIVE GROUP CHALLENGE</div><h2 id="gameTitle">Permainan Kelompok</h2><p id="gameMeta">Diskusikan jawaban sebelum dikirim.</p></div><button class="btn secondary" id="backScore">← Papan skor</button></div><article class="game-card"><div class="game-kicker" id="roundLabel">RONDE 1</div><h2 class="game-question" id="questionText">Memuat soal…</h2><div class="option-list" id="options"></div><div id="answerResult"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px"><button class="btn secondary" id="reloadQuestion">↻ Periksa ronde terbaru</button></div></article></section>
 </main>
-<div class="gate" id="gate"><div class="gate-panel"><div class="gate-logo">G</div><div class="eyebrow">GENBI MISSION · AKSES PESERTA</div><h2>Menyiapkan papan skor…</h2><p>Memeriksa sesi peserta dan status pendaftaran.</p><div class="notice">Pastikan perangkat ini tetap digunakan agar sesi peserta tersimpan.</div></div></div>
+<div class="gate" id="gate"><div class="gate-card"><div class="gate-logo">G</div><div class="eyebrow">LOGIN AKUN KELOMPOK</div><h2 id="gateTitle">Masuk sebagai satu tim</h2><p id="gateSub">Masukkan kode akun kelompok dari fasilitator. Satu kode hanya dapat diklaim pada satu perangkat/browser.</p><form id="teamLogin"><div class="field"><label for="teamCode">KODE KELOMPOK</label><input id="teamCode" autocomplete="off" placeholder="GENBI-01-XXXXXXXX" required maxlength="40"></div><button class="btn" id="loginBtn" style="width:100%;padding:13px">Masuk ke akun kelompok →</button></form><div class="error" id="gateError"></div><div class="note">Setelah login, gunakan perangkat yang sama untuk scan QR kehadiran dan QR setiap pos. Simpan kode kelompok dengan baik. Jika perangkat berganti, minta fasilitator reset akun kelompok.</div></div></div>
+<div class="modal hidden" id="scannerModal"><div class="modal-card"><div class="modal-head"><div><div class="eyebrow">GENBI QR SCANNER</div><h2>Scan QR kehadiran / game</h2></div><button class="btn secondary" id="closeScanner">Tutup</button></div><div class="reader" id="qr-reader"></div><p class="small">Arahkan kamera ke QR yang ditampilkan fasilitator. Jika kamera tidak bisa dibuka, izinkan akses kamera di browser atau gunakan aplikasi kamera perangkat untuk membuka tautan QR.</p></div></div>
 <div class="toast hidden" id="toast"></div>
 <script>
 (function(){
 'use strict';
 const SUPABASE_URL='https://gavsepqkjudrtjftuafa.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_gyzrYgc7Fdl1X69w2ssIXA_Jt9ytexr';
+const SUPABASE_KEY='sb_publishable_gyzrYgc7Fdl1X69w2ssIXA_Jt9ytexr';
 const MISSIONS=[
- {key:'aris',name:'ARIS',subtitle:'QRIS & QRIS Antarnegara',icon:'📲',color:'#2868d5',soft:'#eaf2ff'},
- {key:'peka',name:'PEKA',subtitle:'Perlindungan konsumen',icon:'🛡️',color:'#d95149',soft:'#fff0ed'},
- {key:'ekonomi',name:'EKONOMI CERDAS',subtitle:'Target & keputusan ekonomi',icon:'🎯',color:'#d49a1f',soft:'#fff7e6'},
- {key:'bi',name:'KE-BANK SENTRALAN',subtitle:'BI Control Room',icon:'🏦',color:'#23945a',soft:'#eaf8ef'},
- {key:'final',name:'FINAL CHALLENGE',subtitle:'15 soal rangkuman',icon:'🏆',color:'#7954d8',soft:'#f1edff'}
+ {key:'aris',name:'ARIS',sub:'QRIS & QRIS Antarnegara',icon:'📲',color:'#2868d5',soft:'#eaf2ff'},
+ {key:'peka',name:'PEKA',sub:'Perlindungan konsumen',icon:'🛡️',color:'#d95149',soft:'#fff0ed'},
+ {key:'ekonomi',name:'EKONOMI CERDAS',sub:'Strategi ekonomi tim',icon:'🎯',color:'#d49a1f',soft:'#fff7e6'},
+ {key:'bi',name:'KE-BANK SENTRALAN',sub:'BI Control Room',icon:'🏦',color:'#23945a',soft:'#eaf8ef'},
+ {key:'final',name:'FINAL CHALLENGE',sub:'15 soal lintas pos',icon:'🏆',color:'#7954d8',soft:'#f1edff'}
 ];
-let db=null,userId=null,teamId=null,teamInfo=null,registration=null,scoreChannel=null,registrationChannel=null,refreshing=false,teamCache=[];
+let db=null,account=null,userId=null,scoreChannel=null,scanner=null,gameContext=null,attendanceChecked=false,pendingUrl=null;
 const $=id=>document.getElementById(id);
-function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function setStatus(s,bad){$('cloudStatus').textContent=s;$('cloudStatus').style.color=bad?'#ffd1cb':'#d7f6e6';}
-function toast(s){const el=$('toast');el.textContent=s;el.classList.remove('hidden');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.add('hidden'),2800);}
-function showGate(title,sub,body){
- $('gate').innerHTML='<div class="gate-panel"><div class="gate-logo">G</div><div class="eyebrow">GENBI MISSION · AKSES PESERTA</div><h2>'+title+'</h2><p>'+sub+'</p>'+body+'</div>';
- $('gate').classList.remove('hidden');
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){const n=$('toast');n.textContent=msg;n.classList.remove('hidden');clearTimeout(toast.timer);toast.timer=setTimeout(()=>n.classList.add('hidden'),2800);}
+function setStatus(msg){$('sync').textContent=msg;}
+function showGateError(msg){$('gateError').textContent=msg;$('gateError').style.display='block';}
+function showGate(){ $('gate').classList.remove('hidden');$('appView').classList.add('hidden');$('scanBtn').disabled=true; }
+function showApp(){ $('gate').classList.add('hidden');$('appView').classList.remove('hidden');$('scanBtn').disabled=false; }
+function getPendingUrl(){
+ const params=new URLSearchParams(location.search);
+ if(params.get('attend'))return location.href;
+ if(params.get('sid')&&params.get('token'))return location.href;
+ return null;
 }
-function hideGate(){$('gate').classList.add('hidden');}
-function gateError(msg){const el=$('gateError');if(el){el.textContent=msg;el.style.display='block';}}
-async function fetchTeams(){
- const {data,error}=await db.from('teams').select('id,team_number,team_name,school_name').order('team_number');
- if(error)throw error;teamCache=data||[];return teamCache;
+function cleanUrl(){history.replaceState({},'',location.pathname);}
+function parseScanUrl(value){
+ const u=new URL(value,location.href);
+ if(u.origin!==location.origin||!u.pathname.endsWith('/participant.html'))throw new Error('QR bukan berasal dari halaman GENBI MISSION.');
+ const attend=u.searchParams.get('attend'),sid=u.searchParams.get('sid'),token=u.searchParams.get('token');
+ if(attend)return {type:'attendance',token:attend};
+ if(sid&&token)return {type:'game',sessionId:sid,token:token};
+ throw new Error('Format QR GENBI tidak dikenali.');
 }
-async function showRegistrationForm(){
- try{
-  const teams=await fetchTeams();
-  const options=teams.map(t=>'<option value="'+esc(t.id)+'">Tim '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</option>').join('');
-  showGate('Daftar sebagai peserta GENBI','Isi data diri dan pilih kelompok. Fasilitator akan memeriksa pendaftaran sebelum papan skor kelompok dibuka.',
-   '<form id="registerForm"><div class="field"><label for="nameInput">NAMA LENGKAP</label><input id="nameInput" minlength="2" maxlength="80" placeholder="Nama peserta" required autocomplete="name"></div><div class="field"><label for="schoolInput">ASAL SEKOLAH</label><input id="schoolInput" minlength="2" maxlength="120" placeholder="Contoh: SMA Negeri ..." required></div><div class="field"><label for="teamInput">KELOMPOK</label><select id="teamInput" required>'+options+'</select></div><button class="btn" id="registerBtn" style="width:100%;padding:13px">Kirim pendaftaran →</button></form><div id="gateError" class="gate-error"></div><div class="help"><b>Alur masuk</b><br>Daftar sekali, tunggu persetujuan fasilitator, lalu halaman ini akan berubah menjadi papan skor kelompok. Tidak ada permainan yang perlu dijalankan lewat HP peserta.</div>');
-  $('registerForm').addEventListener('submit',submitRegistration);
- }catch(e){
-  showGate('Pendaftaran belum dapat dimuat','Periksa koneksi internet lalu coba lagi.','<div id="gateError" class="gate-error" style="display:block">'+esc(e.message||'Daftar kelompok tidak dapat diambil.')+'</div><button class="btn" id="retryBtn" style="width:100%">Coba lagi</button>');
-  $('retryBtn').addEventListener('click',showRegistrationForm);
- }
-}
-async function submitRegistration(ev){
- ev.preventDefault();const btn=$('registerBtn');
- const participantName=$('nameInput').value.trim(),schoolName=$('schoolInput').value.trim(),requestedTeamId=$('teamInput').value;
- if(participantName.length<2||schoolName.length<2){gateError('Nama dan sekolah wajib diisi.');return;}
- btn.disabled=true;btn.textContent='Mengirim pendaftaran…';
- const {error}=await db.from('participant_registrations').insert({user_id:userId,participant_name:participantName,school_name:schoolName,requested_team_id:requestedTeamId,status:'pending'});
- btn.disabled=false;btn.textContent='Kirim pendaftaran →';
- if(error){gateError(error.message||'Pendaftaran tidak berhasil dikirim.');return;}
- await refreshAccess();toast('Pendaftaran dikirim. Menunggu persetujuan fasilitator.');
-}
-function showPending(reg){
- registration=reg;
- const team=teamCache.find(t=>t.id===reg.requested_team_id);
- showGate('Pendaftaran sedang diperiksa','Data sudah masuk ke antrean fasilitator. Setelah disetujui, papan skor kelompok akan terbuka otomatis.',
-  '<div class="help"><b>Nama peserta</b><br>'+esc(reg.participant_name)+'<br><br><b>Sekolah</b><br>'+esc(reg.school_name)+'<br><br><b>Kelompok pilihan</b><br>'+esc(team?('Tim '+team.team_number+' · '+team.team_name):'Kelompok yang dipilih')+'</div><div class="notice">⏳ Status: menunggu persetujuan. Halaman memeriksa pembaruan secara otomatis.</div><button class="btn secondary" id="refreshAccessBtn" style="width:100%">↻ Perbarui status</button>');
- $('refreshAccessBtn').addEventListener('click',()=>refreshAccess().catch(e=>gateError(e.message)));
- setStatus('⏳ Menunggu persetujuan');
-}
-function showRejected(reg){
- registration=reg;
- showGate('Pendaftaran perlu diperbaiki','Fasilitator belum menyetujui pendaftaran ini. Periksa catatan, lalu ajukan ulang.',
-  '<div class="notice error">'+esc(reg.review_note||'Silakan hubungi fasilitator untuk memperbaiki data.')+'</div><button class="btn" id="reapplyBtn" style="width:100%">Perbaiki data dan ajukan ulang</button>');
- $('reapplyBtn').addEventListener('click',async()=>{
-  const {error}=await db.from('participant_registrations').delete().eq('user_id',userId).eq('status','rejected');
-  if(error){gateError(error.message||'Tidak dapat mengajukan ulang.');return;}
-  await showRegistrationForm();
- });
- setStatus('↻ Perlu perbaikan',true);
-}
-async function refreshAccess(){
- const {data:membership,error:memberError}=await db.from('team_members').select('team_id').eq('user_id',userId).maybeSingle();
- if(memberError)throw memberError;
- if(membership?.team_id){await activateTeam(membership.team_id);return;}
- const {data:reg,error}=await db.from('participant_registrations').select('id,user_id,participant_name,school_name,requested_team_id,approved_team_id,status,review_note,created_at').eq('user_id',userId).maybeSingle();
+async function ensureAccount(){
+ const {data,error}=await db.rpc('get_my_team_account');
  if(error)throw error;
- if(!reg){registration=null;await showRegistrationForm();return;}
- registration=reg;await fetchTeams();
- if(reg.status==='pending'){showPending(reg);return;}
- if(reg.status==='rejected'){showRejected(reg);return;}
- if(reg.status==='approved'){
-  setStatus('✓ Disetujui · memuat kelompok');
-  const {data:again,error:againError}=await db.from('team_members').select('team_id').eq('user_id',userId).maybeSingle();
-  if(againError)throw againError;
-  if(again?.team_id){await activateTeam(again.team_id);return;}
-  throw new Error('Persetujuan sudah tercatat, tetapi keanggotaan kelompok belum terbaca. Perbarui status.');
- }
+ if(data){account=data;return true;}
+ return false;
 }
-async function activateTeam(id){
- teamId=id;
- const {data:team,error}=await db.from('teams').select('id,team_name,school_name,team_number').eq('id',id).single();
+async function loadTeam(){
+ $('teamLabel').textContent='Kelompok '+String(account.team_number).padStart(2,'0');
+ $('hello').textContent='Halo, '+account.team_name+'! 👋';
+ $('teamInfo').textContent='80 peserta · 8 kelompok × 10 orang. Satu akun untuk satu kelompok. Diskusikan jawaban bersama, scan QR setiap pos, dan kumpulkan poin tim.';
+ showApp();
+ await loadScoreboard();
+ await subscribeRealtime();
+}
+async function claimTeam(code){
+ const {data,error}=await db.rpc('claim_team_account',{p_code:code.trim().toUpperCase()});
  if(error)throw error;
- teamInfo=team;
- const {data:reg}=await db.from('participant_registrations').select('participant_name,school_name').eq('user_id',userId).maybeSingle();
- registration=reg||registration;
- $('teamLabel').textContent='Tim '+String(team.team_number).padStart(2,'0')+' · '+team.team_name;
- $('participantName').textContent=registration?.participant_name||team.team_name;
- $('teamSchool').textContent=(team.school_name||registration?.school_name||'Sekolah belum diisi')+' · Semua permainan dipandu fasilitator; halaman ini hanya menampilkan poin dan progres.';
- hideGate();
- await refreshScoreboard();
- await subscribeScoreboard();
- setStatus('● Live · tersinkron');
+ account=data;
+ await loadTeam();
 }
-async function refreshScoreboard(){
- if(!db||!teamId||refreshing)return;
- refreshing=true;
- try{
-  const results=await Promise.all([
-   db.from('facilitator_assessments').select('mission_key,score,completed,updated_at').eq('team_id',teamId),
-   db.from('leaderboard_public').select('team_id,team_number,team_name,school_name,total_score,completed_count,updated_at').order('total_score',{ascending:false}).order('team_number',{ascending:true})
-  ]);
-  for(const r of results)if(r.error)throw r.error;
-  const assessments=results[0].data||[],leaderboard=results[1].data||[];
-  const source={};
-  MISSIONS.forEach(m=>{
-   source[m.key]=assessments.find(x=>x.mission_key===m.key)||null;
-  });
-  const mine=leaderboard.find(x=>x.team_id===teamId);
-  const total=Number(mine?.total_score??Object.values(source).reduce((sum,x)=>sum+Number(x?.score||0),0));
-  const completedPosts=MISSIONS.slice(0,4).filter(m=>!!source[m.key]?.completed).length;
-  const finalDone=!!source.final?.completed;
-  const rank=mine?leaderboard.findIndex(x=>x.team_id===teamId)+1:0;
-  $('totalScore').textContent=total.toLocaleString('id-ID');
-  $('stationCount').textContent=completedPosts+'/4';
-  $('finalStatus').textContent=finalDone?'Selesai':'Belum';
-  $('rankValue').textContent=rank?'#'+rank:'—';
-  $('rankText').textContent=rank?'Peringkat #'+rank+' dari '+leaderboard.length+' tim':'Belum masuk peringkat';
-  $('rankPoints').textContent=total.toLocaleString('id-ID');
-  $('scoreGrid').innerHTML=MISSIONS.map(m=>{
-   const row=source[m.key],score=Number(row?.score||0),done=!!row?.completed;
-   const status=done?'<span class="state-tag done">✓ Selesai</span>':(row?'<span class="state-tag scored">● Sudah dinilai</span>':'<span class="state-tag">○ Menunggu penilaian</span>');
-   const updated=row?.updated_at?new Date(row.updated_at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}):'Belum ada nilai masuk';
-   return '<article class="score-card" style="--accent:'+m.color+';--soft:'+m.soft+'"><div class="score-top"><div class="score-name"><div class="score-icon">'+m.icon+'</div><div><b>'+m.name+'</b><small>'+m.subtitle+'</small></div></div><div class="score-value"><strong>'+score+'</strong><small>POIN / 100</small></div></div><div class="progress-track"><div class="progress-fill" style="width:'+Math.max(0,Math.min(100,score))+'%;background:'+m.color+'"></div></div><div class="score-foot">'+status+'<small>'+esc(updated)+'</small></div></article>';
-  }).join('');
-  $('leaderRows').innerHTML=leaderboard.length?leaderboard.map((r,i)=>{
-   const isMine=r.team_id===teamId;
-   return '<tr class="'+(isMine?'mine':'')+'"><td>'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</td><td><strong>'+esc(r.team_name)+(isMine?' · Kamu':'')+'</strong></td><td>'+esc(r.school_name||'—')+'</td><td><b>'+Number(r.total_score||0).toLocaleString('id-ID')+'</b></td><td>'+Number(r.completed_count||0)+'/5</td></tr>';
-  }).join(''):'<tr><td colspan="5" class="muted">Belum ada data leaderboard.</td></tr>';
- }catch(e){
-  console.error('Scoreboard:',e);setStatus('⚠️ Gagal memuat nilai',true);toast(e.message||'Poin belum dapat dimuat.');
- }finally{refreshing=false;}
+async function loadScoreboard(){
+ if(!account)return;
+ const [a,b,c]=await Promise.all([
+  db.from('facilitator_assessments').select('mission_key,score,completed,updated_at').eq('team_id',account.team_id),
+  db.from('leaderboard_public').select('team_id,team_number,team_name,total_score,completed_count').eq('is_active',true).order('total_score',{ascending:false}).order('team_number'),
+  db.rpc('participant_attendance_status')
+ ]);
+ if(a.error)throw a.error;if(b.error)throw b.error;
+ const assessments=a.data||[],rows=b.data||[];
+ const mine=rows.find(x=>x.team_id===account.team_id);
+ const total=Number(mine?.total_score||0);
+ $('totalScore').textContent=total.toLocaleString('id-ID');
+ $('donePosts').textContent=Number(mine?.completed_count||0)+'/5';
+ const rank=rows.findIndex(x=>x.team_id===account.team_id)+1;
+ $('rank').textContent=rank?'#'+rank:'—';
+ attendanceChecked=!!c.data?.checked_in;
+ $('attendance').textContent=attendanceChecked?'Hadir':'Belum';
+ $('scoreGrid').innerHTML=MISSIONS.map(m=>{
+  const r=assessments.find(x=>x.mission_key===m.key),score=Number(r?.score||0),done=!!r?.completed;
+  return '<article class="score-card" style="--accent:'+m.color+';--soft:'+m.soft+'"><div class="score-top"><div class="score-name"><div class="score-icon">'+m.icon+'</div><div><b>'+m.name+'</b><small>'+m.sub+'</small></div></div><div class="score-value"><strong>'+score+'</strong><small>POIN / 100</small></div></div><div class="track"><div class="fill" style="width:'+score+'%;background:'+m.color+'"></div></div><span class="status-tag '+(done?'done':'')+'">'+(done?'✓ Selesai':'○ Berjalan / menunggu')+'</span></article>';
+ }).join('');
+ $('leaderRows').innerHTML=rows.map((r,i)=>'<tr class="'+(r.team_id===account.team_id?'mine':'')+'"><td>'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</td><td><b>'+esc(r.team_name)+(r.team_id===account.team_id?' · Kamu':'')+'</b></td><td>'+Number(r.total_score||0)+'</td><td>'+Number(r.completed_count||0)+'/5</td></tr>').join('')||'<tr><td colspan="4">Belum ada skor.</td></tr>';
 }
-async function subscribeScoreboard(){
+async function subscribeRealtime(){
  if(scoreChannel)await db.removeChannel(scoreChannel);
- scoreChannel=db.channel('participant-scoreboard-'+teamId)
-  .on('postgres_changes',{event:'*',schema:'public',table:'mission_progress',filter:'team_id=eq.'+teamId},()=>refreshScoreboard())
-  .on('postgres_changes',{event:'*',schema:'public',table:'facilitator_assessments',filter:'team_id=eq.'+teamId},()=>refreshScoreboard())
-  .on('postgres_changes',{event:'*',schema:'public',table:'leaderboard_public'},()=>refreshScoreboard())
-  .subscribe(s=>{if(s==='SUBSCRIBED')setStatus('● Live · tersinkron');});
+ scoreChannel=db.channel('group-score-'+account.team_id)
+  .on('postgres_changes',{event:'*',schema:'public',table:'facilitator_assessments',filter:'team_id=eq.'+account.team_id},()=>loadScoreboard())
+  .on('postgres_changes',{event:'*',schema:'public',table:'leaderboard_public'},()=>loadScoreboard())
+  .subscribe(s=>{if(s==='SUBSCRIBED')setStatus('● LIVE');});
 }
-async function subscribeRegistration(){
- if(registrationChannel)await db.removeChannel(registrationChannel);
- registrationChannel=db.channel('genbi-registration-'+userId)
-  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'participant_registrations',filter:'user_id=eq.'+userId},()=>refreshAccess().catch(e=>gateError(e.message||'Status belum dapat diperbarui.')))
-  .subscribe();
+async function handleScannedUrl(value){
+ const scan=parseScanUrl(value);
+ if(scan.type==='attendance'){
+  const {data,error}=await db.rpc('participant_check_in',{p_token:scan.token});
+  if(error)throw error;
+  cleanUrl();await loadScoreboard();toast('Kehadiran '+data.team_name+' berhasil tercatat.');return;
+ }
+ gameContext={sessionId:scan.sessionId,token:scan.token};
+ cleanUrl();$('scoreView').classList.add('hidden');$('gameView').classList.remove('hidden');
+ await loadQuestion();
+}
+async function loadQuestion(){
+ if(!gameContext)return;
+ const {data,error}=await db.rpc('participant_get_game_question',{p_session_id:gameContext.sessionId,p_access_token:gameContext.token});
+ if(error)throw error;
+ const m=MISSIONS.find(x=>x.key===data.mission_key);
+ $('gameTitle').textContent=(m?.name||'Game Tim')+' · '+account.team_name;
+ $('gameMeta').textContent='Satu jawaban per ronde untuk seluruh kelompok. Diskusikan dahulu sebelum memilih.';
+ $('roundLabel').textContent='RONDE '+data.round_no+' / '+data.round_total+' · '+data.points+' POIN';
+ $('questionText').textContent=data.prompt;
+ const result=data.answer_result;
+ $('options').innerHTML=data.options.map((o,i)=>'<button class="option" data-answer="'+esc(o.value)+'" '+(data.already_answered?'disabled':'')+'><span class="letter">'+String.fromCharCode(65+i)+'</span><span>'+esc(o.label)+'</span></button>').join('');
+ $('answerResult').innerHTML=data.already_answered?'<div class="result '+(result?.correct?'':'bad')+'">'+(result?.correct?'Jawaban tim benar!':'Jawaban belum tepat.')+' Poin ronde: <b>'+Number(result?.points||0)+'</b>. '+(result?.explanation||'Tunggu fasilitator membuka ronde berikutnya.')+'</div>':'<div class="note">Pilih jawaban setelah tim berdiskusi. Sistem hanya menerima satu jawaban untuk satu kelompok di setiap ronde.</div>';
+ $('options').querySelectorAll('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>submitAnswer(btn.dataset.answer,btn)));
+}
+async function submitAnswer(answer,button){
+ button.disabled=true;
+ try{
+  const {data,error}=await db.rpc('participant_submit_game_answer',{p_session_id:gameContext.sessionId,p_access_token:gameContext.token,p_answer:answer});
+  if(error)throw error;
+  $('answerResult').innerHTML='<div class="result '+(data.correct?'':'bad')+'">'+(data.correct?'✅ Jawaban benar!':'Belum tepat, tetap semangat!')+'<br>Poin ronde: <b>+'+data.points_awarded+'</b><br>Total nilai pos saat ini: <b>'+data.total_score+'</b><br>'+esc(data.explanation||'')+'</div>';
+  $('options').querySelectorAll('button').forEach(x=>x.disabled=true);
+  await loadScoreboard();
+ }catch(e){button.disabled=false;toast(e.message||'Jawaban gagal dikirim.');}
+}
+async function startScanner(){
+ $('scannerModal').classList.remove('hidden');
+ if(!window.Html5Qrcode){toast('Library kamera gagal dimuat. Buka QR dengan kamera perangkat.');return;}
+ try{
+  scanner=new Html5Qrcode('qr-reader');
+  await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230}},async decoded=>{
+   await stopScanner();try{await handleScannedUrl(decoded);}catch(e){toast(e.message||'QR tidak dapat diproses.');}
+  });
+ }catch(e){toast('Kamera tidak dapat dibuka. Periksa izin kamera browser.');}
+}
+async function stopScanner(){
+ if(scanner){try{if(scanner.isScanning)await scanner.stop();await scanner.clear();}catch(_){}scanner=null;}
+ $('scannerModal').classList.add('hidden');
 }
 async function init(){
- if(!window.supabase?.createClient){showGate('Koneksi belum tersedia','Pustaka koneksi belum berhasil dimuat.','<div class="notice error">Periksa internet, kemudian muat ulang halaman.</div>');setStatus('⚠️ Library gagal',true);return;}
- db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{storageKey:'genbi-participant-auth-v2',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+ if(!window.supabase?.createClient){$('gateTitle').textContent='Koneksi belum tersedia';showGateError('Periksa internet dan muat ulang halaman.');return;}
+ db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:'genbi-group-account-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
  try{
-  let {data:{session},error:sessionError}=await db.auth.getSession();
-  if(sessionError)throw sessionError;
-  if(!session){
-   const {data,error}=await db.auth.signInAnonymously();
-   if(error)throw error;session={user:data.user};
-  }
+  let {data:{session},error:se}=await db.auth.getSession();if(se)throw se;
+  if(!session){const {data,error}=await db.auth.signInAnonymously();if(error)throw error;session={user:data.user};}
   userId=session.user.id;
-  await fetchTeams();await refreshAccess();await subscribeRegistration();
-  window.setInterval(()=>{if(!teamId)refreshAccess().catch(e=>console.warn('Registration status:',e.message));},20000);
- }catch(e){
-  console.error('GENBI participant:',e);
-  const msg=/anonymous|provider.*disabled|signup/i.test(e.message||'')
-   ?'Anonymous Sign-Ins belum aktif di Supabase. Aktifkan di Authentication → Sign In / Providers, lalu muat ulang.'
-   :(e.message||'Koneksi Supabase belum berhasil.');
-  showGate('Belum dapat masuk','Ada kendala saat menyiapkan sesi peserta.','<div class="notice error">'+esc(msg)+'</div><button class="btn" id="retryInit" style="width:100%">Coba lagi</button>');
-  $('retryInit').addEventListener('click',()=>location.reload());setStatus('⚠️ Perlu konfigurasi',true);
- }
+  pendingUrl=getPendingUrl();
+  const linked=await ensureAccount();
+  if(linked){await loadTeam();setStatus('● LIVE');if(pendingUrl){try{await handleScannedUrl(pendingUrl);}catch(e){toast(e.message||'QR belum dapat diproses.');}}}
+  else{
+   showGate();setStatus('Kode kelompok dibutuhkan');
+   $('teamLogin').addEventListener('submit',async ev=>{
+    ev.preventDefault();const btn=$('loginBtn');btn.disabled=true;btn.textContent='Memeriksa kode…';$('gateError').style.display='none';
+    try{await claimTeam($('teamCode').value);setStatus('● LIVE');if(pendingUrl){await handleScannedUrl(pendingUrl);}}
+    catch(e){showGateError(e.message||'Kode kelompok salah.');}
+    finally{btn.disabled=false;btn.textContent='Masuk ke akun kelompok →';}
+   });
+  }
+ }catch(e){showGate();showGateError(e.message||'Tidak dapat terhubung ke GENBI MISSION.');setStatus('⚠️ Koneksi bermasalah');}
 }
-$('refreshBtn').addEventListener('click',async()=>{
- if(!teamId){try{await refreshAccess();}catch(e){toast(e.message||'Status belum dapat diperbarui.');}return;}
- await refreshScoreboard();toast('Papan skor diperbarui.');
-});
+$('scanBtn').addEventListener('click',startScanner);
+$('scanMain').addEventListener('click',startScanner);
+$('closeScanner').addEventListener('click',stopScanner);
+$('backScore').addEventListener('click',()=>{$('gameView').classList.add('hidden');$('scoreView').classList.remove('hidden');gameContext=null;loadScoreboard();});
+$('reloadQuestion').addEventListener('click',()=>loadQuestion().catch(e=>toast(e.message||'Ronde belum tersedia.')));
+$('refreshScore').addEventListener('click',()=>loadScoreboard().then(()=>toast('Skor diperbarui.')).catch(e=>toast(e.message)));
 document.addEventListener('DOMContentLoaded',init,{once:true});
 if(document.readyState!=='loading')init();
 })();
