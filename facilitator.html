@@ -19,9 +19,9 @@
 .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}.panel h2{font-size:15px;margin:0 0 4px}.sub{font-size:10px;color:var(--muted);line-height:1.6;margin:0 0 12px}.main-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(310px,.8fr);gap:14px;align-items:start}.team-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.team-item{border:1px solid #e5edf1;border-radius:12px;padding:10px;background:#fbfdfe}.team-item b{display:block;font-size:10px}.team-item span{display:block;color:var(--muted);font-size:9px;margin:3px 0 8px}.team-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap}.team-actions button{font-size:8px;padding:6px 8px}
 .attendance{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;align-items:center}.qr-box{border:1px dashed #cbd9e0;border-radius:13px;background:#f7fafb;padding:12px;display:grid;justify-items:center;gap:6px;min-height:160px}.qr-box canvas{max-width:100%;height:auto}.qr-box small{color:var(--muted);font-size:8px;text-align:center}.att-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.att-row{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid #edf1f3;border-radius:9px;padding:8px 9px}.att-row b{font-size:9px}.tag{font-size:8px;font-weight:900;border-radius:20px;padding:4px 7px;background:#f1f3f5;color:#758492}.tag.yes{background:#eaf8ef;color:#176a49}
 .game-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;align-items:start}.game-form{background:#f7fafb;border:1px solid #e6edf1;border-radius:13px;padding:13px}.game-form label{display:block;font-size:9px;font-weight:900;color:#5a7080;margin:0 0 5px}.game-form select{width:100%;border:1px solid #dce5e9;border-radius:9px;padding:10px;background:#fff;margin-bottom:10px;font-size:10px}.game-info{border:1px solid #e3ebef;border-radius:13px;padding:15px}.game-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.game-top h3{font-size:16px;margin:4px 0}.game-question{background:#f4f8fa;border:1px solid #e5edf1;border-radius:12px;padding:12px;margin:12px 0}.game-question b{font-size:11px;display:block}.game-question p{font-size:10px;color:#536a7a;margin:6px 0 0}.game-option-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.game-option{border:1px solid #e4ebef;border-radius:9px;padding:9px;font-size:9px;color:#405a6c;background:#fff}.game-option strong{color:var(--blue);margin-right:5px}.game-controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.answer-list{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}.answer-chip{border-radius:20px;padding:5px 8px;font-size:8px;font-weight:850;background:#f2f4f5;color:#637381}.answer-chip.good{background:#eaf8ef;color:#176a49}.qr-inline{display:grid;grid-template-columns:190px minmax(0,1fr);gap:13px;align-items:center;margin-top:12px}.qr-inline .qr-box{min-height:180px}.notice{background:#eef5f8;color:#496579;border-radius:10px;padding:10px 12px;font-size:9px;line-height:1.6;margin:10px 0}.notice.warn{background:#fff5e6;color:#8a631e}.notice.error{background:#fff0ed;color:#a43e35}
-.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:9px;min-width:430px}th,td{text-align:left;border-bottom:1px solid #edf1f4;padding:8px}th{color:#8997a4;font-size:8px;letter-spacing:.06em;text-transform:uppercase}.toast{position:fixed;bottom:17px;left:50%;transform:translateX(-50%);background:#10243c;color:#fff;padding:10px 14px;border-radius:10px;font-size:10px;z-index:90;max-width:90vw;box-shadow:0 8px 25px #0003}
+.host-media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0}.host-media-item{margin:0;border:1px solid #e5edf1;border-radius:11px;overflow:hidden;background:#f8fafb}.host-media-item img{display:block;width:100%;height:min(54vh,420px);object-fit:contain;background:#edf1f3}.host-media-item figcaption{padding:7px 8px;font-size:9px;font-weight:900;color:#496174}.station-top{display:flex;justify-content:space-between;gap:12px;align-items:center;border-radius:12px;background:#eff8f3;padding:12px;margin-bottom:10px}.station-top b{font-size:12px}.station-top strong{font-size:21px;color:#13764f}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:9px;min-width:430px}th,td{text-align:left;border-bottom:1px solid #edf1f4;padding:8px}th{color:#8997a4;font-size:8px;letter-spacing:.06em;text-transform:uppercase}.toast{position:fixed;bottom:17px;left:50%;transform:translateX(-50%);background:#10243c;color:#fff;padding:10px 14px;border-radius:10px;font-size:10px;z-index:90;max-width:90vw;box-shadow:0 8px 25px #0003}
 @media(max-width:1000px){.main-grid{grid-template-columns:1fr}.game-layout{grid-template-columns:1fr}.team-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance{grid-template-columns:1fr 230px}}
-@media(max-width:650px){.top{padding:11px 13px}.nav a{display:none}.wrap{padding:15px}.stats{grid-template-columns:repeat(2,1fr);gap:7px}.stat{padding:10px}.stat strong{font-size:21px}.team-grid{grid-template-columns:1fr 1fr}.attendance{grid-template-columns:1fr}.att-list{grid-template-columns:1fr}.qr-inline{grid-template-columns:1fr}.game-option-list{grid-template-columns:1fr}.head h1{font-size:24px}}
+@media(max-width:650px){.top{padding:11px 13px}.nav a{display:none}.wrap{padding:15px}.stats{grid-template-columns:repeat(2,1fr);gap:7px}.stat{padding:10px}.stat strong{font-size:21px}.team-grid{grid-template-columns:1fr 1fr}.attendance{grid-template-columns:1fr}.att-list{grid-template-columns:1fr}.qr-inline{grid-template-columns:1fr}.game-option-list{grid-template-columns:1fr}.host-media-grid{grid-template-columns:1fr}.host-media-item img{height:420px}.head h1{font-size:24px}}
 </style>
 </head>
 <body>
@@ -32,11 +32,11 @@
  <section class="stats"><article class="stat"><small>Kelompok aktif</small><strong id="teamCount">8</strong></article><article class="stat"><small>Akun kelompok terhubung</small><strong id="claimedCount">0/8</strong></article><article class="stat"><small>Kehadiran kelompok</small><strong id="attendedCount">0/8</strong></article><article class="stat"><small>Total poin semua tim</small><strong id="pointsTotal">0</strong></article></section>
  <section class="panel"><h2>1. Akun kelompok & perangkat</h2><p class="sub">Setiap kelompok memakai satu kode akses dan satu perangkat utama. Reset hanya jika kelompok harus pindah perangkat; tindakan ini akan melepas akun yang sedang terhubung.</p><div id="teamGrid" class="team-grid"></div></section>
  <section class="panel"><h2>2. Scan kehadiran saat kelompok datang</h2><p class="sub">Tekan mulai kehadiran, tampilkan QR di meja registrasi, lalu setiap akun kelompok memindai QR yang sama. Sistem mencatat satu check-in per kelompok (bukan absensi nama anggota satu per satu).</p><div class="attendance"><div><div class="game-controls"><button class="btn" id="startAttendance">＋ Mulai sesi kehadiran & tampilkan QR</button><button class="btn red" id="closeAttendance" disabled>Tutup check-in</button><button class="btn ghost" id="refreshAttendance">↻ Refresh daftar</button></div><div class="notice" id="attendanceNotice">Belum ada sesi kehadiran yang dibuka.</div><div id="attendanceList" class="att-list"></div></div><div class="qr-box" id="attendanceQr"><b>QR kehadiran tampil di sini</b><small>QR akan dibuat setelah tombol mulai ditekan.</small></div></div></section>
- <section class="panel"><h2>3. Game per pos — pilih kelompok dan mulai permainan</h2><p class="sub">Fasilitator memilih tim dan pos, kemudian QR unik ditampilkan. Akun kelompok memindai QR dan mengirim satu jawaban per ronde setelah berdiskusi. Jawaban benar otomatis menambah poin ke tim.</p><div class="game-layout">
-  <aside class="game-form"><div class="eyebrow" style="margin-bottom:9px">KONTROL GAME</div><label for="gameTeam">KELOMPOK AKTIF</label><select id="gameTeam"></select><label for="gameMission">POS PERMAINAN</label><select id="gameMission"><option value="aris">Pos 1 · ARIS — QRIS Codebreaker</option><option value="peka">Pos 2 · PEKA — Detektif Chat</option><option value="ekonomi">Pos 3 · Ekonomi Cerdas — Economic Strategy</option><option value="bi">Pos 4 · Ke-bank Sentralan — BI Control Room</option><option value="final">Final Challenge — Bank Sentral Quiz</option></select><button class="btn blue" id="startGame" style="width:100%;padding:12px">▶ Mulai game & buat QR</button><div class="notice warn">Memulai ulang game pada tim dan pos yang sama akan membuat sesi sebelumnya tidak berlaku dan mengulang nilai pos tersebut dari 0.</div></aside>
-  <div class="game-info"><div class="game-top"><div><div class="eyebrow" id="activeGameLabel">BELUM ADA GAME AKTIF</div><h3 id="activeGameTitle">Pilih kelompok dan pos</h3><p class="sub" id="activeGameMeta">QR unik akan muncul setelah game dimulai.</p></div><span class="status" id="gameStatus">Standby</span></div><div class="qr-inline"><div class="qr-box" id="gameQr"><b>QR game tampil di sini</b><small>QR terikat pada tim dan sesi permainan.</small></div><div><div class="game-kicker" id="roundLine">RONDE —</div><div class="game-question"><b id="hostQuestion">Pertanyaan akan tampil di sini.</b><p id="hostAnswer">Kunci dan pembahasan hanya terlihat di halaman fasilitator.</p></div><div class="answer-list" id="answerList"></div><div class="game-controls"><button class="btn blue" id="nextRound" disabled>Buka ronde berikutnya</button><button class="btn red" id="closeGame" disabled>Tutup game</button><button class="btn ghost" id="refreshGame" disabled>↻ Perbarui status</button></div></div></div></div>
+ <section class="panel"><h2>3. Kendali permainan pos</h2><p class="sub">Fasilitator memilih pos yang dijaga dan menampilkan satu QR khusus pos. Kelompok yang pertama memindai akan dikenali otomatis dari akun kelompoknya. Tantangan tampil di layar fasilitator, sedangkan jawaban dikirim dari HP peserta.</p><div class="game-layout">
+  <aside class="game-form"><div class="eyebrow" style="margin-bottom:9px">KONTROL POS</div><label for="gameMission">POS YANG DIJAGA</label><select id="gameMission"><option value="aris">Pos 1 · ARIS — QRIS Codebreaker</option><option value="peka">Pos 2 · PEKA — Detektif Chat</option><option value="ekonomi">Pos 3 · Ekonomi Cerdas — Economic Strategy</option><option value="bi">Pos 4 · Ke-bank Sentralan — BI Control Room</option><option value="final">Final Challenge — Bank Sentral Quiz</option></select><button class="btn blue" id="startGame" style="width:100%;padding:12px">▶ Mulai pos & tampilkan QR</button><div class="notice warn">Satu kelompok bermain pada satu waktu di pos ini. Setelah selesai, tekan “Kembali ke QR” agar kelompok berikutnya dapat masuk. Kelompok yang sudah menuntaskan pos tidak dapat mengulang untuk mengumpulkan poin lagi.</div></aside>
+  <div class="game-info"><div class="game-top"><div><div class="eyebrow" id="activeGameLabel">BELUM ADA POS AKTIF</div><h3 id="activeGameTitle">Pilih pos yang dijaga</h3><p class="sub" id="activeGameMeta">QR pos akan muncul setelah tombol mulai ditekan.</p></div><span class="status" id="gameStatus">Standby</span></div><div class="qr-inline"><div class="qr-box" id="gameQr"><b>QR pos tampil di sini</b><small>QR ini dipakai ulang untuk menerima kelompok berikutnya.</small></div><div><div class="game-kicker" id="roundLine">MENUNGGU KELOMPOK</div><div class="game-question"><b id="hostQuestion">Kelompok berikutnya silakan scan QR pos.</b><p id="hostAnswer">Setelah scan berhasil, tantangan akan tampil di layar fasilitator.</p></div><div class="host-media-grid" id="hostMedia"></div><div class="answer-list" id="answerList"></div><div class="game-controls"><button class="btn blue" id="nextRound" disabled>Buka ronde berikutnya</button><button class="btn red" id="closeGame" disabled>Tutup game</button><button class="btn hidden" id="nextGroup">Kembali ke QR untuk kelompok berikutnya</button><button class="btn ghost" id="refreshGame" disabled>↻ Perbarui status</button></div></div></div></div>
  </div></section>
- <section class="panel"><h2>4. Leaderboard resmi</h2><p class="sub">Poin berasal dari jawaban game yang benar dan sudah tersimpan.</p><div class="table-wrap"><table><thead><tr><th>Rank</th><th>Kelompok</th><th>Skor</th><th>Game selesai</th></tr></thead><tbody id="leaderboard"><tr><td colspan="4">Memuat…</td></tr></tbody></table></div></section>
+ <section class="panel"><h2>4. Leaderboard pos ini</h2><p class="sub">Peringkat hanya untuk pos yang sedang dipilih. Leaderboard keseluruhan tersedia di menu khusus peserta.</p><div class="station-top"><div><div class="eyebrow">PERINGKAT TERTINGGI</div><b id="stationTop">Belum ada kelompok yang memperoleh skor.</b></div><strong id="stationTopScore">—</strong></div><div class="table-wrap"><table><thead><tr><th>Rank pos</th><th>Kelompok</th><th>Skor</th><th>Status</th></tr></thead><tbody id="stationLeaderboard"><tr><td colspan="4">Pilih pos untuk melihat ranking.</td></tr></tbody></table></div></section>
 </main>
 <div class="toast hidden" id="toast"></div>
 <script>
@@ -87,7 +87,7 @@ const MISSIONS={
   {prompt:'Kebijakan makroprudensial bertujuan…',options:[{label:'Menjaga ketahanan sistem keuangan dan memitigasi risiko sistemik',value:'A'},{label:'Menentukan harga satu produk',value:'B'},{label:'Mengatur pilihan belanja keluarga',value:'C'}],answer:'A',points:6,explanation:'Kebijakan makroprudensial memperhatikan stabilitas sistem keuangan secara keseluruhan.'}
  ]}
 };
-let db=null,user=null,data={teams:[],accounts:[],leaderboard:[],attendance:{active:false,teams:[]}},activeSession=null,activeToken=null,attendanceToken=null,pollTimer=null,refreshing=false;
+let db=null,user=null,data={teams:[],accounts:[],leaderboard:[],attendance:{active:false,teams:[]}},activeSession=null,activeToken=null,activeStationId=null,stationToken=null,stationKey=null,attendanceToken=null,pollTimer=null,refreshing=false;
 const $=id=>document.getElementById(id);
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function toast(s){const el=$('toast');el.textContent=s;el.classList.remove('hidden');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.add('hidden'),2800);}
@@ -129,8 +129,6 @@ function drawAll(){
   const a=data.accounts.find(x=>x.team_id===t.id);
   return '<article class="team-item"><b>TIM '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</b><span>10 orang · '+(a?.claimed?'akun terhubung':'belum login')+'</span><div class="team-actions"><span class="tag '+(a?.claimed?'yes':'')+'">'+(a?.claimed?'AKTIF':'MENUNGGU')+'</span>'+(a?.claimed?'<button class="btn ghost reset-account" data-team="'+t.id+'">Reset perangkat</button>':'')+'</div></article>';
  }).join('');
- const selectedTeam=$('gameTeam').value;$('gameTeam').innerHTML=data.teams.map(t=>'<option value="'+t.id+'">Tim '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</option>').join('');if(data.teams.some(t=>t.id===selectedTeam))$('gameTeam').value=selectedTeam;
- $('leaderboard').innerHTML=data.leaderboard.map((r,i)=>'<tr><td>'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</td><td><b>'+esc(r.team_name)+'</b></td><td>'+Number(r.total_score||0)+'</td><td>'+Number(r.completed_count||0)+'/5</td></tr>').join('')||'<tr><td colspan="4">Belum ada nilai resmi.</td></tr>';
  drawAttendance();
 }
 function drawAttendance(){
@@ -163,86 +161,134 @@ async function resetAccount(teamId){
  if(error){toast(error.message);return;}await loadAll();toast('Akun kelompok berhasil dilepas dari perangkat lama.');
 }
 async function startGame(){
- const teamId=$('gameTeam').value,key=$('gameMission').value,mission=MISSIONS[key];
+ const key=$('gameMission').value,mission=MISSIONS[key];
  const token=randomToken(),questions=mission.questions;
- $('startGame').disabled=true;$('startGame').textContent='Membuat sesi…';
+ $('startGame').disabled=true;$('startGame').textContent='Membuka pos…';
  try{
-  const {data:sessionId,error}=await db.rpc('facilitator_start_game',{p_team_id:teamId,p_mission_key:key,p_access_token:token,p_questions:questions});
+  const {data:stationId,error}=await db.rpc('facilitator_start_station',{p_mission_key:key,p_access_token:token,p_questions:questions});
   if(error)throw error;
-  activeSession=sessionId;activeToken=token;
-  sessionStorage.setItem('genbi-active-session',JSON.stringify({sessionId:sessionId,token:token,teamId:teamId,key:key}));
-  await renderGameSession();
-  toast('Game dibuat. QR siap dipindai oleh kelompok.');
- }catch(e){toast(e.message||'Game belum berhasil dimulai.');}
- finally{$('startGame').disabled=false;$('startGame').textContent='▶ Mulai game & buat QR';}
+  activeStationId=stationId;stationToken=token;stationKey=key;activeSession=null;activeToken=token;
+  sessionStorage.setItem('genbi-active-station',JSON.stringify({stationId,token,key}));
+  $('activeGameLabel').textContent='POS AKTIF · '+key.toUpperCase();
+  $('activeGameTitle').textContent=mission.title;
+  $('activeGameMeta').textContent='Tampilkan QR ini. Kelompok akan dikenali otomatis saat memindai.';
+  $('gameStatus').textContent='Menunggu scan';
+  $('roundLine').textContent='MENUNGGU KELOMPOK';
+  $('hostQuestion').textContent='Kelompok berikutnya silakan scan QR pos.';
+  $('hostAnswer').textContent='Game akan tampil di layar ini setelah kelompok berhasil masuk.';
+  $('hostMedia').innerHTML='';$('answerList').innerHTML='';
+  $('nextRound').disabled=true;$('closeGame').disabled=true;$('nextGroup').classList.add('hidden');
+  $('refreshGame').disabled=false;
+  const url=makeParticipantUrl({station:stationId,token});
+  await drawQr('gameQr',url);
+  await refreshGameStatus();
+  toast('Pos dibuka. QR siap dipindai kelompok.');
+ }catch(e){toast(e.message||'Pos belum berhasil dibuka.');}
+ finally{$('startGame').disabled=false;$('startGame').textContent='▶ Mulai pos & tampilkan QR';}
 }
-async function renderGameSession(){
- if(!activeSession)return;
- const stored=JSON.parse(sessionStorage.getItem('genbi-active-session')||'{}');
- const key=stored.key,team=data.teams.find(t=>t.id===stored.teamId),mission=MISSIONS[key];
- $('activeGameLabel').textContent='GAME AKTIF · '+key.toUpperCase();
- $('activeGameTitle').textContent=(mission?.title||key)+' · '+(team?.team_name||'Kelompok');
- $('activeGameMeta').textContent=team?.team_name+' · Scan QR menggunakan akun kelompok yang sesuai.';
- $('gameStatus').textContent='Aktif';
- $('refreshGame').disabled=false;
- const url=makeParticipantUrl({sid:activeSession,token:activeToken});
- await drawQr('gameQr',url);
- await loadAll();
- await refreshGameStatus();
+async function refreshStationLeaderboard(){
+ if(!stationKey)return;
+ const {data:rows,error}=await db.rpc('facilitator_station_leaderboard',{p_mission_key:stationKey});
+ if(error){toast(error.message||'Leaderboard pos gagal dimuat.');return;}
+ const list=Array.isArray(rows)?rows:[];
+ const top=list[0];
+ $('stationTop').textContent=top&&Number(top.score)>0?top.team_name+' · '+(top.completed?'Selesai':'Sedang berjalan'):'Belum ada kelompok yang memperoleh skor.';
+ $('stationTopScore').textContent=top&&Number(top.score)>0?Number(top.score)+' poin':'—';
+ $('stationLeaderboard').innerHTML=list.map(r=>'<tr><td>'+(r.rank<=3?['🥇','🥈','🥉'][r.rank-1]:'#'+r.rank)+'</td><td><b>'+esc(r.team_name)+'</b></td><td>'+Number(r.score||0)+'</td><td>'+(r.completed?'Selesai':Number(r.score)>0?'Berjalan':'Belum bermain')+'</td></tr>').join('')||'<tr><td colspan="4">Belum ada nilai.</td></tr>';
 }
 async function refreshGameStatus(){
- if(!activeSession)return;
+ if(!activeStationId)return;
+ const {data:station,error:stationError}=await db.rpc('facilitator_get_station_status',{p_station_id:activeStationId});
+ if(stationError){setStatus('Sesi pos tidak tersedia');toast(stationError.message);return;}
+ if(station.status!=='active'){
+  $('gameStatus').textContent='Pos ditutup';
+  $('activeGameMeta').textContent='Sesi pos telah ditutup atau kedaluwarsa.';
+  $('nextRound').disabled=true;$('closeGame').disabled=true;$('nextGroup').classList.add('hidden');
+  await refreshStationLeaderboard();return;
+ }
+ if(!station.active_game_session_id){
+  activeSession=null;activeToken=stationToken;
+  $('activeGameMeta').textContent='QR tetap aktif. Kelompok berikutnya dapat memindai sekarang.';
+  $('gameStatus').textContent='Menunggu kelompok';
+  $('roundLine').textContent='MENUNGGU KELOMPOK';
+  $('hostQuestion').textContent='Kelompok berikutnya silakan scan QR pos.';
+  $('hostAnswer').textContent='Tantangan akan tampil di layar ini setelah QR dipindai.';
+  $('hostMedia').innerHTML='';$('answerList').innerHTML='';
+  $('nextRound').disabled=true;$('closeGame').disabled=true;$('nextGroup').classList.add('hidden');
+  await refreshStationLeaderboard();return;
+ }
+ activeSession=station.active_game_session_id;activeToken=stationToken;
  const {data:s,error}=await db.rpc('facilitator_get_game_status',{p_session_id:activeSession});
  if(error){toast(error.message);return;}
- const q=s.current_question,answered=s.answered||0,total=s.round_total||0;
- $('gameStatus').textContent=s.status==='active'?'Aktif':'Ditutup';
- $('roundLine').textContent='RONDE '+s.current_round+' / '+total+' · '+answered+'/'+total+' JAWABAN';
- $('hostQuestion').textContent=q?.prompt||'Ronde belum tersedia.';
- $('hostAnswer').textContent=q?'Kunci: '+q.correct_answer+' · '+q.explanation:'Sesi ditutup atau soal belum tersedia.';
+ const q=s.current_question,answered=Number(s.answered||0),total=Number(s.round_total||0);
+ const mission=MISSIONS[stationKey];
+ $('activeGameLabel').textContent='POS '+stationKey.toUpperCase()+' · KELOMPOK AKTIF';
+ $('activeGameTitle').textContent=(mission?.title||stationKey)+' · '+(s.team_name||station.active_team_name||'Kelompok');
+ $('activeGameMeta').textContent='Kelompok sedang bermain. Jawaban dikirim dari HP perwakilan kelompok.';
+ $('gameStatus').textContent=s.status==='active'?'Permainan berlangsung':'Hasil kelompok siap';
+ $('roundLine').textContent='RONDE '+s.current_round+' / '+total+' · '+answered+'/'+total+' TERJAWAB';
+ $('hostQuestion').textContent=q?.prompt||'Semua ronde telah diproses.';
+ $('hostAnswer').textContent=q?'Kunci: '+q.correct_answer+' · '+q.explanation:'Permainan telah ditutup.';
+ const media=q?.media||[];
+ $('hostMedia').innerHTML=media.map((m,i)=>'<figure class="host-media-item"><img src="'+esc(m.url)+'" alt="'+esc(m.alt||m.label||('Materi '+(i+1)))+'"><figcaption>'+esc(m.label||('Materi '+(i+1)))+'</figcaption></figure>').join('');
  $('answerList').innerHTML=(s.answers||[]).map(a=>'<span class="answer-chip '+(a.correct?'good':'')+'">R'+a.round_no+' · '+(a.correct?'Benar':'Belum tepat')+' · '+a.points+' poin</span>').join('');
  const currentAnswered=(s.answers||[]).some(a=>Number(a.round_no)===Number(s.current_round));
  const active=s.status==='active';
  $('nextRound').disabled=!active||!currentAnswered;
  $('closeGame').disabled=!active;
- $('nextRound').textContent=Number(s.current_round)<Number(total)?'Buka ronde berikutnya':'Tutup game & sahkan selesai';
- if(!active){$('nextRound').disabled=true;$('closeGame').disabled=true;}
+ $('nextRound').textContent=Number(s.current_round)<total?'Buka ronde berikutnya':'Tutup game & tampilkan hasil';
+ $('nextGroup').classList.toggle('hidden',active);
+ $('nextGroup').disabled=active;
+ if(!active){
+  $('hostQuestion').textContent='Permainan kelompok selesai.';
+  $('hostAnswer').textContent='Nilai kelompok sudah disimpan. '+(s.team_name||'Kelompok')+' memperoleh '+Number(data.leaderboard.find(x=>x.team_id===s.team_id)?.total_score||0)+' total poin keseluruhan.';
+  $('nextRound').disabled=true;$('closeGame').disabled=true;
+ }
+ await refreshStationLeaderboard();
 }
 async function advanceGame(){
  if(!activeSession)return;
- const stored=JSON.parse(sessionStorage.getItem('genbi-active-session')||'{}');
  const {data:s,error:statusError}=await db.rpc('facilitator_get_game_status',{p_session_id:activeSession});
  if(statusError){toast(statusError.message);return;}
  const next=Number(s.current_round)<Number(s.round_total)?Number(s.current_round)+1:0;
- const {data,error}=await db.rpc('facilitator_set_game_round',{p_session_id:activeSession,p_round_no:next});
+ const {error}=await db.rpc('facilitator_set_game_round',{p_session_id:activeSession,p_round_no:next});
  if(error){toast(error.message);return;}
- if(next===0){
-  activeSession=null;activeToken=null;sessionStorage.removeItem('genbi-active-session');
-  $('gameQr').innerHTML='<b>Game selesai</b><small>Nilai otomatis masuk ke leaderboard.</small>';
-  $('gameStatus').textContent='Selesai';$('hostQuestion').textContent='Game ditutup. Nilai resmi telah disimpan.';$('hostAnswer').textContent='Lihat leaderboard atau pilih kelompok/pos berikutnya.';
-  $('nextRound').disabled=true;$('closeGame').disabled=true;
- }else{await refreshGameStatus();}
+ await refreshGameStatus();
  await loadAll();
 }
 async function closeGameEarly(){
- if(!activeSession||!confirm('Tutup game sebelum semua ronde selesai? Tim hanya mendapat poin dari jawaban yang sudah dikirim dan pos tidak ditandai selesai.'))return;
+ if(!activeSession||!confirm('Tutup permainan sebelum semua ronde selesai? Skor yang sudah diperoleh tetap tercatat, tetapi pos tidak ditandai selesai.'))return;
  const {error}=await db.rpc('facilitator_set_game_round',{p_session_id:activeSession,p_round_no:0});
  if(error){toast(error.message);return;}
- activeSession=null;activeToken=null;sessionStorage.removeItem('genbi-active-session');
- $('gameQr').innerHTML='<b>Game ditutup</b><small>Nilai sementara tersimpan.</small>';$('gameStatus').textContent='Ditutup';$('nextRound').disabled=true;$('closeGame').disabled=true;
- await loadAll();
+ await refreshGameStatus();await loadAll();
 }
-async function restoreSession(){
+async function returnToStationQr(){
+ if(!activeStationId)return;
+ const {error}=await db.rpc('facilitator_reset_station_for_next_group',{p_station_id:activeStationId});
+ if(error){toast(error.message);return;}
+ activeSession=null;activeToken=stationToken;
+ await refreshGameStatus();
+ toast('QR siap untuk kelompok berikutnya.');
+}
+async function restoreStation(){
  try{
-  const s=JSON.parse(sessionStorage.getItem('genbi-active-session')||'null');
-  if(!s?.sessionId||!s?.token)return;
-  activeSession=s.sessionId;activeToken=s.token;$('gameTeam').value=s.teamId;$('gameMission').value=s.key;
-  await renderGameSession();
- }catch(e){console.warn('Session game fasilitator:',e.message);}
+  const s=JSON.parse(sessionStorage.getItem('genbi-active-station')||'null');
+  if(!s?.stationId||!s?.token||!s?.key)return;
+  activeStationId=s.stationId;stationToken=s.token;activeToken=s.token;stationKey=s.key;
+  $('gameMission').value=s.key;
+  $('activeGameLabel').textContent='POS AKTIF · '+s.key.toUpperCase();
+  $('activeGameTitle').textContent=MISSIONS[s.key]?.title||s.key;
+  $('activeGameMeta').textContent='Memulihkan QR dan status kelompok…';
+  const url=makeParticipantUrl({station:s.stationId,token:s.token});
+  await drawQr('gameQr',url);
+  $('refreshGame').disabled=false;
+  await refreshGameStatus();
+ }catch(e){console.warn('Sesi pos fasilitator:',e.message);}
 }
 async function enter(session){
- user=session.user;await authorize();showDashboard();await loadAll();await restoreSession();
+ user=session.user;await authorize();showDashboard();await loadAll();await restoreStation();
  if(pollTimer)clearInterval(pollTimer);
- pollTimer=setInterval(async()=>{await loadAll();if(activeSession)await refreshGameStatus();},6000);
+ pollTimer=setInterval(async()=>{await refreshGameStatus();if(stationKey)await refreshStationLeaderboard();await loadAll();},4000);
 }
 async function logout(){
  if(pollTimer)clearInterval(pollTimer);
@@ -266,6 +312,7 @@ async function init(){
  $('nextRound').addEventListener('click',advanceGame);
  $('closeGame').addEventListener('click',closeGameEarly);
  $('refreshGame').addEventListener('click',refreshGameStatus);
+ $('nextGroup').addEventListener('click',returnToStationQr);
  $('teamGrid').addEventListener('click',e=>{const b=e.target.closest('.reset-account');if(b)resetAccount(b.dataset.team);});
  const {data:{session}}=await db.auth.getSession();if(session){try{await enter(session);}catch(e){await db.auth.signOut();showLogin();notice(e.message||'Sesi tidak dapat digunakan.',true);}}
 }
