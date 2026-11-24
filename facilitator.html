@@ -7,7 +7,7 @@
 <title>GENBI MISSION — Game Master</title>
 <meta name="description" content="Game master GENBI MISSION untuk mengelola kehadiran kelompok, QR game, ronde, dan poin resmi.">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script src="./qrcode.js?v=20261124"></script>
 <style>
 :root{--navy:#10243c;--navy2:#183958;--ink:#1b2c40;--muted:#77879a;--line:#e4edf2;--paper:#f3f7f8;--green:#16865d;--blue:#2673c8;--red:#c84f48;--gold:#d69b27;--shadow:0 13px 34px rgba(16,36,60,.08)}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -102,16 +102,26 @@ function makeParticipantUrl(params){
 }
 async function drawQr(targetId,value){
  const host=$(targetId);host.innerHTML='';
- const canvas=document.createElement('canvas');host.appendChild(canvas);
- const qrApi=window.QRCode;
- if(!qrApi||typeof qrApi.toCanvas!=='function'){
-  host.innerHTML='<b>QR library tidak tersedia</b><small>Periksa koneksi internet. Gunakan tautan langsung sementara.</small><a style="font-size:9px;overflow-wrap:anywhere" href="'+esc(value)+'">Buka tautan sesi kelompok</a>';
-  throw new Error('Library pembuat QR belum termuat. Muat ulang halaman atau periksa koneksi internet.');
+ const qrFactory=window.qrcode;
+ if(typeof qrFactory!=='function'){
+  host.innerHTML='<b>Generator QR lokal belum tersedia</b><small>Pastikan file qrcode.js termuat dari repository.</small><a style="font-size:9px;overflow-wrap:anywhere" href="'+esc(value)+'">Buka tautan sesi kelompok</a>';
+  throw new Error('Generator QR lokal tidak ditemukan. Muat ulang halaman dengan Ctrl + Shift + R.');
  }
  try{
-  await qrApi.toCanvas(canvas,value,{width:280,margin:3,errorCorrectionLevel:'H'});
+  const qr=qrFactory(0,'H');
+  qr.addData(String(value),'Byte');
+  qr.make();
+  const img=document.createElement('img');
+  img.alt='QR Code untuk membuka sesi kelompok';
+  img.width=320;
+  img.style.width='280px';
+  img.style.maxWidth='100%';
+  img.style.height='auto';
+  img.style.imageRendering='pixelated';
+  img.src=qr.createDataURL(8,16);
+  host.appendChild(img);
  }catch(err){
-  host.innerHTML='<b>QR gagal dirender</b><small>'+esc(err?.message||'Terjadi kesalahan pada QR.')+'</small><a style="font-size:9px;overflow-wrap:anywhere" href="'+esc(value)+'">Buka tautan sesi kelompok</a>';
+  host.innerHTML='<b>QR gagal dibuat</b><small>'+esc(err?.message||'Terjadi kesalahan saat membuat QR.')+'</small><a style="font-size:9px;overflow-wrap:anywhere" href="'+esc(value)+'">Buka tautan sesi kelompok</a>';
   throw err;
  }
 }
