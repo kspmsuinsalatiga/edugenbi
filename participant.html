@@ -107,7 +107,8 @@ async function loadScoreboard(){
  const mine=rows.find(x=>x.team_id===account.team_id);
  const total=Number(mine?.total_score||0);
  $('totalScore').textContent=total.toLocaleString('id-ID');
- $('donePosts').textContent=MISSIONS.slice(0,4).filter(m=>assessments.some(r=>r.mission_key===m.key&&r.completed)).length+'/4';\n $('finalStatus').textContent=assessments.some(r=>r.mission_key==='final'&&r.completed)?'Selesai':'Belum';
+ $('donePosts').textContent=MISSIONS.slice(0,4).filter(m=>assessments.some(r=>r.mission_key===m.key&&r.completed)).length+'/4';
+ $('finalStatus').textContent=assessments.some(r=>r.mission_key==='final'&&r.completed)?'Selesai':'Belum';
  const rank=rows.findIndex(x=>x.team_id===account.team_id)+1;
  $('rank').textContent=rank?'#'+rank:'—';
  attendanceChecked=!!c.data?.checked_in;
