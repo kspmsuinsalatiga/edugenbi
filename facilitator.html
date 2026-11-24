@@ -95,7 +95,11 @@ function toast(s){const el=$('toast');el.textContent=s;el.classList.remove('hidd
 function notice(s,bad){$('loginNotice').textContent=s;$('loginNotice').className='notice'+(bad?' error':'');}
 function setStatus(s){$('sync').textContent=s;}
 function randomToken(){const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);return Array.from(bytes).map(x=>x.toString(16).padStart(2,'0')).join('');}
-function makeParticipantUrl(params){const u=new URL('./participant.html',location.href);Object.keys(params).forEach(k=>u.searchParams.set(k,params[k]));return u.toString();}
+function makeParticipantUrl(params){
+ const base=location.origin+location.pathname.replace(/[^/]*$/,'')+'participant.html';
+ const query=Object.keys(params).map(k=>encodeURIComponent(k)+'='+encodeURIComponent(String(params[k]))).join('&');
+ return base+(query?'?'+query:'');
+}
 async function drawQr(targetId,value){
  const host=$(targetId);host.innerHTML='';
  const canvas=document.createElement('canvas');host.appendChild(canvas);
