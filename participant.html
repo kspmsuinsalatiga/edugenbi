@@ -31,9 +31,9 @@
    <button class="portal-tab" id="tabLeaderboard" type="button">🏆 Leaderboard</button>
   </nav>
   <section id="homeView">
-   <section class="hero"><div class="hero-inner"><div><div class="eyebrow">TEAM SCOREBOARD · 2026</div><h1 id="hello">Halo, Tim GENBI!</h1><p id="teamInfo">Satu akun untuk satu kelompok. Diskusikan jawaban bersama, scan QR di setiap aktivitas, dan kumpulkan poin tim.</p></div><div class="total"><div><small>TOTAL POIN KELOMPOK</small><strong id="totalScore">0</strong><span>maksimal 500 poin</span></div></div></div></section>
+   <section class="hero"><div class="hero-inner"><div><div class="eyebrow">TEAM SCOREBOARD · 2026</div><h1 id="hello">Halo, Tim GENBI!</h1><p id="teamInfo">Satu akun untuk satu kelompok. Diskusikan jawaban bersama, scan QR di setiap aktivitas, dan kumpulkan poin tim.</p></div><div class="total"><div><small>TOTAL POIN KELOMPOK</small><strong id="totalScore">0</strong><span>maksimal 400 poin</span></div></div></div></section>
    <div class="actions"><button class="btn" id="scanMain" type="button">▦ Scan kehadiran / game</button><button class="btn secondary" id="refreshScore" type="button">↻ Perbarui skor</button></div>
-   <section class="summary-grid"><article class="summary"><small>Pos utama selesai</small><strong id="donePosts">0/4</strong></article><article class="summary"><small>Final Challenge</small><strong id="finalStatus">Belum</strong></article><article class="summary"><small>Kehadiran kelompok</small><strong id="attendance">Belum</strong></article></section>
+   <section class="summary-grid"><article class="summary"><small>Pos utama selesai</small><strong id="donePosts">0/3</strong></article><article class="summary"><small>Final Challenge</small><strong id="finalStatus">Belum</strong></article><article class="summary"><small>Kehadiran kelompok</small><strong id="attendance">Belum</strong></article></section>
    <div class="section-head"><div><h2>Rapor poin per pos</h2><p>Poin bertambah setelah tim mengirim jawaban yang benar.</p></div><span class="pill" style="background:#eaf8ef;color:#176a49;border-color:#d7eee2">LIVE</span></div>
    <section class="score-grid" id="scoreGrid"></section>
    <p class="small" style="margin-top:12px">Gunakan satu perangkat utama untuk akun kelompok. Anggota berdiskusi bersama sebelum satu jawaban dikirim. QR kehadiran menandai kehadiran kelompok, bukan mencatat nama 10 anggota satu per satu.</p>
@@ -56,9 +56,7 @@ const SUPABASE_KEY='sb_publishable_gyzrYgc7Fdl1X69w2ssIXA_Jt9ytexr';
 const MISSIONS=[
  {key:'aris',name:'ARIS',sub:'QRIS & QRIS Antarnegara',icon:'📲',color:'#2868d5',soft:'#eaf2ff'},
  {key:'peka',name:'PEKA',sub:'Perlindungan konsumen',icon:'🛡️',color:'#d95149',soft:'#fff0ed'},
- {key:'ekonomi',name:'EKONOMI CERDAS',sub:'Strategi ekonomi tim',icon:'🎯',color:'#d49a1f',soft:'#fff7e6'},
- {key:'bi',name:'KE-BANK SENTRALAN',sub:'BI Control Room',icon:'🏦',color:'#23945a',soft:'#eaf8ef'},
- {key:'final',name:'FINAL CHALLENGE',sub:'15 soal lintas pos',icon:'🏆',color:'#7954d8',soft:'#f1edff'}
+ {key:'ekonomi',name:'EKONOMI CERDAS',sub:'Strategi ekonomi tim',icon:'🎯',color:'#d49a1f',soft:'#fff7e6'}, {key:'final',name:'FINAL CHALLENGE',sub:'15 soal lintas pos',icon:'🏆',color:'#7954d8',soft:'#f1edff'}
 ];
 let db=null,account=null,userId=null,scoreChannel=null,scanner=null,gameContext=null,attendanceChecked=false,pendingUrl=null,currentTab='home';
 const $=id=>document.getElementById(id);
@@ -124,7 +122,7 @@ async function loadScoreboard(){
  const mine=rows.find(x=>x.team_id===account.team_id);
  const total=Number(mine?.total_score||0);
  $('totalScore').textContent=total.toLocaleString('id-ID');
- $('donePosts').textContent=MISSIONS.slice(0,4).filter(m=>assessments.some(r=>r.mission_key===m.key&&r.completed)).length+'/4';
+ $('donePosts').textContent=MISSIONS.slice(0,3).filter(m=>assessments.some(r=>r.mission_key===m.key&&r.completed)).length+'/3';
  $('finalStatus').textContent=assessments.some(r=>r.mission_key==='final'&&r.completed)?'Selesai':'Belum';
  const rank=rows.findIndex(x=>x.team_id===account.team_id)+1;
  attendanceChecked=!!c.data?.checked_in;
