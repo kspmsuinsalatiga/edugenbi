@@ -129,7 +129,7 @@ function drawAll(){
   const a=data.accounts.find(x=>x.team_id===t.id);
   return '<article class="team-item"><b>TIM '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</b><span>10 orang · '+(a?.claimed?'akun terhubung':'belum login')+'</span><div class="team-actions"><span class="tag '+(a?.claimed?'yes':'')+'">'+(a?.claimed?'AKTIF':'MENUNGGU')+'</span>'+(a?.claimed?'<button class="btn ghost reset-account" data-team="'+t.id+'">Reset perangkat</button>':'')+'</div></article>';
  }).join('');
- $('gameTeam').innerHTML=data.teams.map(t=>'<option value="'+t.id+'">Tim '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</option>').join('');
+ const selectedTeam=$('gameTeam').value;$('gameTeam').innerHTML=data.teams.map(t=>'<option value="'+t.id+'">Tim '+String(t.team_number).padStart(2,'0')+' · '+esc(t.team_name)+'</option>').join('');if(data.teams.some(t=>t.id===selectedTeam))$('gameTeam').value=selectedTeam;
  $('leaderboard').innerHTML=data.leaderboard.map((r,i)=>'<tr><td>'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</td><td><b>'+esc(r.team_name)+'</b></td><td>'+Number(r.total_score||0)+'</td><td>'+Number(r.completed_count||0)+'/5</td></tr>').join('')||'<tr><td colspan="4">Belum ada nilai resmi.</td></tr>';
  drawAttendance();
 }
@@ -187,6 +187,7 @@ async function renderGameSession(){
  $('refreshGame').disabled=false;
  const url=makeParticipantUrl({sid:activeSession,token:activeToken});
  await drawQr('gameQr',url);
+ await loadAll();
  await refreshGameStatus();
 }
 async function refreshGameStatus(){
@@ -205,7 +206,6 @@ async function refreshGameStatus(){
  $('closeGame').disabled=!active;
  $('nextRound').textContent=Number(s.current_round)<Number(total)?'Buka ronde berikutnya':'Tutup game & sahkan selesai';
  if(!active){$('nextRound').disabled=true;$('closeGame').disabled=true;}
- await loadAll();
 }
 async function advanceGame(){
  if(!activeSession)return;
