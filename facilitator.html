@@ -42,7 +42,7 @@
 <script>
 (function(){
 'use strict';
-const URL='https://gavsepqkjudrtjftuafa.supabase.co';
+const SUPABASE_URL='https://gavsepqkjudrtjftuafa.supabase.co';
 const KEY='sb_publishable_gyzrYgc7Fdl1X69w2ssIXA_Jt9ytexr';
 const PEKA_MEDIA=[{url:'./assets/peka-chat-simulation.webp',label:'CHAT A',alt:'Percakapan WhatsApp A'},{url:'./assets/peka-chat-simulation.webp',label:'CHAT B',alt:'Percakapan WhatsApp B'},{url:'./assets/peka-chat-simulation.webp',label:'CHAT C',alt:'Percakapan WhatsApp C'}];
 const MISSIONS={
@@ -297,7 +297,7 @@ async function logout(){
 }
 async function init(){
  if(!window.supabase?.createClient){notice('Pustaka koneksi gagal dimuat. Periksa internet.',true);return;}
- db=window.supabase.createClient(URL,KEY,{auth:{storageKey:'genbi-facilitator-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+ db=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{storageKey:'genbi-facilitator-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
  $('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();const btn=$('loginBtn');btn.disabled=true;btn.textContent='Memeriksa akses…';
   try{const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await enter(data);}
