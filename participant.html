@@ -131,7 +131,7 @@ async function loadScoreboard(){
   const r=assessments.find(x=>x.mission_key===m.key),score=Number(r?.score||0),done=!!r?.completed;
   return '<article class="score-card" style="--accent:'+m.color+';--soft:'+m.soft+'"><div class="score-top"><div class="score-name"><div class="score-icon">'+m.icon+'</div><div><b>'+m.name+'</b><small>'+m.sub+'</small></div></div><div class="score-value"><strong>'+score+'</strong><small>POIN / 100</small></div></div><div class="track"><div class="fill" style="width:'+score+'%;background:'+m.color+'"></div></div><span class="status-tag '+(done?'done':'')+'">'+(done?'✓ Selesai':'○ Berjalan / menunggu')+'</span></article>';
  }).join('');
- $('leaderRows').innerHTML=rows.map((r,i)=>'<tr class="'+(r.team_id===account.team_id?'mine':'')+'"><td>'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</td><td><b>'+esc(r.team_name)+(r.team_id===account.team_id?' · Kamu':'')+'</b></td><td>'+Number(r.total_score||0)+'</td><td>'+Number(r.completed_count||0)+'/5</td></tr>').join('')||'<tr><td colspan="4">Belum ada skor.</td></tr>';
+ $('leaderRows').innerHTML=rows.map((r,i)=>'<tr class="'+(r.team_id===account.team_id?'mine':'')+'"><td>'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</td><td><b>'+esc(r.team_name)+(r.team_id===account.team_id?' · Kamu':'')+'</b></td><td>'+Number(r.total_score||0)+'</td><td>'+Number(r.completed_count||0)+'/4</td></tr>').join('')||'<tr><td colspan="4">Belum ada skor.</td></tr>';
 }
 async function subscribeRealtime(){
  if(scoreChannel)await db.removeChannel(scoreChannel);
