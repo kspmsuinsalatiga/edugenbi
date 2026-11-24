@@ -103,8 +103,17 @@ function makeParticipantUrl(params){
 async function drawQr(targetId,value){
  const host=$(targetId);host.innerHTML='';
  const canvas=document.createElement('canvas');host.appendChild(canvas);
- if(!window.QRCode?.toCanvas){host.innerHTML='<b>QR library tidak tersedia</b><small>Periksa koneksi internet untuk memuat QR.</small><a style="font-size:8px;overflow-wrap:anywhere" href="'+esc(value)+'">Buka tautan QR</a>';return;}
- await QRCode.toCanvas(canvas,value,{width:230,margin:2,errorCorrectionLevel:'M'});
+ const qrApi=window.QRCode;
+ if(!qrApi||typeof qrApi.toCanvas!=='function'){
+  host.innerHTML='<b>QR library tidak tersedia</b><small>Periksa koneksi internet. Gunakan tautan langsung sementara.</small><a style="font-size:9px;overflow-wrap:anywhere" href="'+esc(value)+'">Buka tautan sesi kelompok</a>';
+  throw new Error('Library pembuat QR belum termuat. Muat ulang halaman atau periksa koneksi internet.');
+ }
+ try{
+  await qrApi.toCanvas(canvas,value,{width:280,margin:3,errorCorrectionLevel:'H'});
+ }catch(err){
+  host.innerHTML='<b>QR gagal dirender</b><small>'+esc(err?.message||'Terjadi kesalahan pada QR.')+'</small><a style="font-size:9px;overflow-wrap:anywhere" href="'+esc(value)+'">Buka tautan sesi kelompok</a>';
+  throw err;
+ }
 }
 async function authorize(){const {data,error}=await db.rpc('is_genbi_facilitator');if(error)throw error;if(data!==true)throw new Error('Akun ini belum masuk daftar fasilitator yang diizinkan.');}
 function showLogin(){$('loginView').classList.remove('hidden');$('dashboard').classList.add('hidden');$('logout').classList.add('hidden');}
